@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La Morada del Nuevo Tango</title>
+  <link rel="icon" type="image/png" href="img/logos/capitan.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #080810;
+      --bg2: #0d0d1a;
+      --magenta: #e500a4;
+      --cyan: #00e5ff;
+      --yellow: #ffe600;
+      --white: #f0f0f0;
+      --gray: #555570;
+      --card-bg: #10101e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Barlow Condensed', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* SCANLINES overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 3rem;
+      background: rgba(8,8,16,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(229,0,164,0.2);
+    }
+
+    .nav-logo img {
+      height: 48px;
+      filter: drop-shadow(0 0 8px var(--magenta));
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.15em;
+      color: var(--white);
+      text-decoration: none;
+      transition: color 0.2s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0; right: 0;
+      height: 2px;
+      background: var(--magenta);
+      transform: scaleX(0);
+      transition: transform 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--magenta); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+
+    /* ─── HERO ─── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      padding: 6rem 2rem 4rem;
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(229,0,164,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(229,0,164,0.08) 1px, transparent 1px);
+      background-size: 60px 60px;
+      perspective: 600px;
+      transform: rotateX(30deg) scale(1.5) translateY(20%);
+      transform-origin: bottom;
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(229,0,164,0.15) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-logo {
+      width: 260px;
+      margin-bottom: 2rem;
+      filter: drop-shadow(0 0 20px var(--magenta));
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 10vw, 8rem);
+      letter-spacing: 0.05em;
+      line-height: 0.9;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-title .line1 { color: var(--white); font-size: 75%; }
+    .hero-title .line2 {
+      color: var(--magenta);
+      text-shadow: 0 0 30px var(--magenta), 0 0 60px var(--magenta);
+      animation: glitch 6s infinite;
+    }
+    .hero-title .line3 { color: var(--cyan); font-size: 38%; letter-spacing: 0.3em; }
+
+    @keyframes glitch {
+      0%, 94%, 100% { text-shadow: 0 0 30px var(--magenta), 0 0 60px var(--magenta); clip-path: none; transform: none; }
+      95% { transform: translate(-3px, 0); clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%); text-shadow: 3px 0 var(--cyan), -3px 0 var(--yellow); }
+      96% { transform: translate(3px, 0); clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%); }
+      97% { transform: translate(0); clip-path: none; }
+    }
+
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      color: var(--gray);
+      text-transform: uppercase;
+      z-index: 1;
+    }
+
+    .hero-sub span { color: var(--cyan); }
+
+    .hero-cta {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    .btn {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.15em;
+      padding: 0.7rem 2rem;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--magenta);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(229,0,164,0.5);
+    }
+    .btn-primary:hover { box-shadow: 0 0 40px rgba(229,0,164,0.8); transform: translateY(-2px); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      box-shadow: 0 0 10px rgba(0,229,255,0.2);
+    }
+    .btn-outline:hover { background: rgba(0,229,255,0.1); box-shadow: 0 0 20px rgba(0,229,255,0.4); transform: translateY(-2px); }
+
+    /* ─── SECCIONES ─── */
+    section { padding: 6rem 3rem; max-width: 1300px; margin: 0 auto; }
+
+    .section-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      color: var(--magenta);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      letter-spacing: 0.05em;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .section-title span { color: var(--magenta); }
+
+    .divider {
+      width: 80px; height: 3px;
+      background: linear-gradient(90deg, var(--magenta), var(--cyan));
+      margin-bottom: 3rem;
+    }
+
+    /* ─── PROGRAMA ─── */
+    #programa {
+      background: var(--bg2);
+      max-width: 100%;
+      padding: 6rem 3rem;
+    }
+
+    #programa > div { max-width: 1300px; margin: 0 auto; }
+
+    .programa-text {
+      font-size: 1.2rem;
+      font-weight: 300;
+      line-height: 1.8;
+      color: #aaaacc;
+      max-width: 700px;
+      margin-bottom: 3rem;
+    }
+
+    .programa-text strong { color: var(--white); font-weight: 600; }
+
+    .plataformas {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .plataforma-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 1.4rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      color: var(--white);
+      transition: all 0.2s;
+    }
+
+    .plataforma-badge:hover { border-color: var(--magenta); color: var(--magenta); transform: translateY(-2px); }
+    .plataforma-badge svg { width: 18px; height: 18px; fill: currentColor; }
+
+    /* ─── VIDEOS ─── */
+    #videos { background: var(--bg); }
+
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .video-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(229,0,164,0.15);
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .video-card:hover { border-color: var(--magenta); transform: translateY(-4px); }
+
+    .video-card iframe {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: none;
+      display: block;
+    }
+
+    .video-info {
+      padding: 1rem;
+    }
+
+    .video-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      color: var(--white);
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .video-date {
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .videos-loading {
+      text-align: center;
+      color: var(--gray);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      padding: 3rem;
+    }
+
+    .videos-error {
+      color: var(--magenta);
+      font-size: 0.9rem;
+      padding: 1rem;
+      border: 1px solid rgba(229,0,164,0.3);
+      background: rgba(229,0,164,0.05);
+    }
+
+    /* ─── EQUIPO ─── */
+    #equipo { background: var(--bg2); max-width: 100%; padding: 6rem 3rem; }
+    #equipo > div { max-width: 1300px; margin: 0 auto; }
+
+    .equipo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .miembro-card {
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid rgba(229,0,164,0.1);
+      transition: border-color 0.3s;
+      text-decoration: none;
+      display: block;
+    }
+
+    .miembro-card:hover { border-color: var(--magenta); }
+
+    .miembro-card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block;
+      filter: grayscale(60%) contrast(1.1);
+      transition: filter 0.4s;
+    }
+
+    .miembro-card:hover img { filter: grayscale(0%) contrast(1.1); }
+
+    .miembro-overlay {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 2rem 1rem 1rem;
+      background: linear-gradient(transparent, rgba(8,8,16,0.95));
+      transform: translateY(0);
+    }
+
+    .miembro-nombre {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.05em;
+      color: var(--white);
+    }
+
+    .miembro-rol {
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      color: var(--magenta);
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+    }
+
+    /* ─── REDES ─── */
+    #redes { text-align: center; }
+
+    .redes-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-top: 3rem;
+    }
+
+    .red-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 2rem 2.5rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--card-bg);
+      text-decoration: none;
+      color: var(--white);
+      transition: all 0.3s;
+      min-width: 140px;
+    }
+
+    .red-card:hover { border-color: var(--magenta); transform: translateY(-6px); box-shadow: 0 10px 30px rgba(229,0,164,0.2); }
+    .red-card svg { width: 36px; height: 36px; fill: currentColor; }
+    .red-card span { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em; }
+
+    .red-yt:hover { border-color: #ff0000; box-shadow: 0 10px 30px rgba(255,0,0,0.2); color: #ff0000; }
+    .red-tw:hover { border-color: #9147ff; box-shadow: 0 10px 30px rgba(145,71,255,0.2); color: #9147ff; }
+    .red-kick:hover { border-color: #53fc18; box-shadow: 0 10px 30px rgba(83,252,24,0.2); color: #53fc18; }
+    .red-ig:hover { border-color: #e1306c; box-shadow: 0 10px 30px rgba(225,48,108,0.2); color: #e1306c; }
+    .red-tt:hover { border-color: var(--cyan); box-shadow: 0 10px 30px rgba(0,229,255,0.2); color: var(--cyan); }
+
+    /* ─── CONTACTO ─── */
+    #contacto {
+      background: var(--bg2);
+      max-width: 100%;
+      padding: 6rem 3rem;
+      text-align: center;
+    }
+
+    #contacto > div { max-width: 1300px; margin: 0 auto; }
+
+    .contacto-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .qr-container {
+      border: 1px solid rgba(229,0,164,0.3);
+      padding: 1.5rem;
+      background: var(--card-bg);
+      display: inline-block;
+      margin: 0 auto;
+    }
+
+    .qr-container img {
+      width: 160px;
+      height: 160px;
+      display: block;
+      filter: invert(1);
+    }
+
+    .qr-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: var(--magenta);
+      text-align: center;
+      margin-top: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    .contacto-text {
+      font-size: 1.1rem;
+      color: #aaaacc;
+      max-width: 500px;
+      line-height: 1.7;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid rgba(229,0,164,0.2);
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      text-align: center;
+    }
+
+    .footer-logos {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer-logos img {
+      height: 48px;
+      filter: grayscale(1) brightness(0.6);
+      transition: filter 0.3s;
+    }
+
+    .footer-logos img:hover { filter: grayscale(0) brightness(1); }
+
+    .footer-copy {
+      font-size: 0.85rem;
+      color: var(--gray);
+      letter-spacing: 0.1em;
+    }
+
+    .footer-copy span { color: var(--magenta); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1.2rem; }
+      .nav-links a { font-size: 0.9rem; }
+      section { padding: 4rem 1.5rem; }
+      #programa, #equipo, #contacto { padding: 4rem 1.5rem; }
+      .equipo-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+      .videos-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">
+    <img src="img/logos/capitan.png" alt="La Morada del Nuevo Tango" />
+  </a>
+  <ul class="nav-links">
+    <li><a href="#programa">El Programa</a></li>
+    <li><a href="#videos">Videos</a></li>
+    <li><a href="#premios">Premios</a></li>
+    <li><a href="#equipo">Equipo</a></li>
+    <li><a href="#redes">Redes</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <img src="img/logos/capitan.png" alt="Logo" class="hero-logo" />
+  <p class="hero-sub">Streaming en vivo · <span>YouTube · Twitch · Kick</span></p>
+  <div class="hero-cta">
+    <a href="https://www.youtube.com/@LaMoradatango" target="_blank" class="btn btn-primary">Ver en YouTube</a>
+    <a href="#programa" class="btn btn-outline">Conocer el programa</a>
+  </div>
+</div>
+
+<!-- PROGRAMA -->
+<section id="programa">
+  <div>
+    <p class="section-label">// 001</p>
+    <h2 class="section-title">El <span>Programa</span></h2>
+    <div class="divider"></div>
+    <p class="programa-text">
+      <strong>La Morada del Nuevo Tango</strong> es un espacio dedicado al <strong>Tango Siglo XXI</strong> —
+      la música que nació del tango y sigue transformándose. Cada emisión es un recorrido
+      por las voces, los instrumentos y las ideas que construyen el tango contemporáneo.
+      Columnistas, músicos y conversaciones que van al fondo del asunto.
+    </p>
+    <div class="plataformas">
+      <a href="https://www.youtube.com/@LaMoradatango" target="_blank" class="plataforma-badge">
+        <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        YouTube
+      </a>
+      <a href="https://www.twitch.tv/lamoradanuevotango" target="_blank" class="plataforma-badge">
+        <svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+        Twitch
+      </a>
+      <a href="https://kick.com/lamoradadeltango" target="_blank" class="plataforma-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-1 17H8V7h3v10zm5-5l-4 5V7l4 5z"/></svg>
+        Kick
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEOS -->
+<section id="videos">
+  <p class="section-label">// 002</p>
+  <h2 class="section-title">Últimos <span>Videos</span></h2>
+  <div class="divider"></div>
+  <div id="videos-container" class="videos-grid">
+    <div class="videos-loading">// CARGANDO TRANSMISIONES...</div>
+  </div>
+</section>
+
+<!-- EQUIPO -->
+<section id="equipo">
+  <div>
+    <p class="section-label">// 003</p>
+    <h2 class="section-title">El <span>Equipo</span></h2>
+    <div class="divider"></div>
+    <div class="equipo-grid">
+
+      <a href="https://www.instagram.com/luciano.sur/" target="_blank" class="miembro-card">
+        <img src="img/equipo/lucho.jpg" alt="Lucho Porcelli" />
+        <div class="miembro-overlay">
+          <div class="miembro-nombre">Lucho Porcelli</div>
+          <div class="miembro-rol">Conductor</div>
+        </div>
+      </a>
+
+      <a href="https://www.instagram.com/contrabajotango/" target="_blank" class="miembro-card">
+        <img src="img/equipo/teo.jpg" alt="Teo Ballesi" />
+        <div class="miembro-overlay">
+          <div class="miembro-nombre">Teo Ballesi</div>
+          <div class="miembro-rol">Co Conductor · Contrabajo x Contrabajo</div>
+        </div>
+      </a>
+
+      <a href="https://www.instagram.com/irinachinna/" target="_blank" class="miembro-card">
+        <img src="img/equipo/irina.jpg" alt="Irina González" />
+        <div class="miembro-overlay">
+          <div class="miembro-nombre">Irina González</div>
+          <div class="miembro-rol">Todo Tango es Político</div>
+        </div>
+      </a>
+
+      <a href="https://www.instagram.com/lolarosa.tango/" target="_blank" class="miembro-card">
+        <img src="img/equipo/lola.jpg" alt="Lola Rosa" />
+        <div class="miembro-overlay">
+          <div class="miembro-nombre">Lola Rosa</div>
+          <div class="miembro-rol">Sentimiento Guitarrero</div>
+        </div>
+      </a>
+
+      <a href="https://www.instagram.com/marcelavigide/" target="_blank" class="miembro-card">
+        <img src="img/equipo/marcela.jpg" alt="Marcela Vigide" />
+        <div class="miembro-overlay">
+          <div class="miembro-nombre">Marcela Vigide</div>
+          <div class="miembro-rol">Violín Criollo</div>
+        </div>
+      </a>
+
+      <a href="https://www.instagram.com/nehuenmartino/" target="_blank" class="miembro-card">
+        <img src="img/equipo/nehuen.jpg" alt="Nehuen Martino" />
+        <div class="miembro-overlay">
+          <div class="miembro-nombre">Nehuen Martino</div>
+          <div class="miembro-rol">¿Esto es Tango?</div>
+        </div>
+      </a>
+
+      <a href="https://www.instagram.com/pablosensottera/" target="_blank" class="miembro-card">
+        <img src="img/equipo/pablo.jpg" alt="Pablo Sensottera" />
+        <div class="miembro-overlay">
+          <div class="miembro-nombre">Pablo Sensottera</div>
+          <div class="miembro-rol">Historia Viva</div>
+        </div>
+      </a>
+
+      <a href="https://youtu.be/TFS316SzGFQ?si=ujRYOy6JAfZh7StL&t=3" target="_blank" class="miembro-card">
+        <img src="img/equipo/chevy.jpg" alt="Chevy" />
+        <div class="miembro-overlay">
+          <div class="miembro-nombre">Chevy</div>
+          <div class="miembro-rol">Asistente Administrativo</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- REDES -->
+<section id="redes">
+  <p class="section-label">// 004</p>
+  <h2 class="section-title">Seguinos en <span>Redes</span></h2>
+  <div class="divider" style="margin: 0 auto 3rem;"></div>
+  <div class="redes-grid">
+
+    <a href="https://www.youtube.com/@LaMoradatango" target="_blank" class="red-card red-yt">
+      <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      <span>YouTube</span>
+    </a>
+
+    <a href="https://www.twitch.tv/lamoradanuevotango" target="_blank" class="red-card red-tw">
+      <svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+      <span>Twitch</span>
+    </a>
+
+    <a href="https://kick.com/lamoradadeltango" target="_blank" class="red-card red-kick">
+      <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-1 17H8V7h3v10zm5-5l-4 5V7l4 5z"/></svg>
+      <span>Kick</span>
+    </a>
+
+    <a href="https://www.instagram.com/lamoradatango/" target="_blank" class="red-card red-ig">
+      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+      <span>Instagram</span>
+    </a>
+
+    <a href="https://www.tiktok.com/@lamoradadeltango" target="_blank" class="red-card red-tt">
+      <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+      <span>TikTok</span>
+    </a>
+
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section id="contacto" style="text-align: center;">
+  <p class="section-label">// 005</p>
+  <h2 class="section-title"><span>Contacto</span></h2>
+  <div class="divider" style="margin: 0 auto 3rem;"></div>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+    <p class="contacto-text">
+      Todos nuestros links en un solo lugar. Escaneá el QR o visitá nuestro Linktree.
+    </p>
+    <div style="display:flex; gap: 2rem; flex-wrap:wrap; justify-content:center;">
+      <a href="tel:+541524092854" style="display:flex; align-items:center; gap:0.6rem; color:var(--cyan); text-decoration:none; font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:0.1em;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.01l-2.2 2.2z"/></svg>
+        +54 15 2409-2854
+      </a>
+      <a href="mailto:lucianosur@gmail.com" style="display:flex; align-items:center; gap:0.6rem; color:var(--cyan); text-decoration:none; font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:0.1em;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        lucianosur@gmail.com
+      </a>
+    </div>
+    <a href="https://linktr.ee/lamoradadeltango" target="_blank" style="display: flex; justify-content: center;">
+      <div class="qr-container">
+        <img src="img/logos/qr.png" alt="QR La Morada" />
+        <div class="qr-label">// Escanear para abrir Linktree</div>
+      </div>
+    </a>
+    <a href="https://linktr.ee/lamoradadeltango" target="_blank" class="btn btn-primary">Visitar Linktree</a>
+  </div>
+</section>
+
+<!-- PREMIOS -->
+<section id="premios" style="background: var(--bg2); max-width: 100%; padding: 6rem 3rem;">
+  <div style="max-width: 1300px; margin: 0 auto;">
+    <p class="section-label">// 006</p>
+    <h2 class="section-title">Premios <span>Tango Siglo XXI</span></h2>
+    <div class="divider"></div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
+
+      <div>
+        <p class="programa-text">
+          Los <strong>Premios Tango Siglo XXI</strong> son el único reconocimiento independiente
+          dedicado a la producción discográfica del tango contemporáneo. Otorgados por periodistas
+          y prensa especializada, celebran a los artistas que construyen el tango de hoy.
+          <br><br>
+          La <strong>2° Edición</strong> se entrega en <strong>mayo de 2026</strong>.
+          La Morada del Nuevo Tango es Media Partner oficial.
+        </p>
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
+          <a href="https://premiostangosiglo21.com.ar/nominaciones-2026/" target="_blank" class="btn btn-primary">Ver Nominados 2026</a>
+          <a href="https://premiostangosiglo21.com.ar/" target="_blank" class="btn btn-outline">Sitio oficial</a>
+        </div>
+
+        <p class="section-label" style="margin-bottom: 1rem;">// Nuestra cobertura</p>
+        <div class="video-card">
+          <iframe
+            src="https://www.youtube.com/embed/Vp2hFDoxLpI"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            loading="lazy">
+          </iframe>
+          <div class="video-info">
+            <div class="video-title">¿Quiénes son los Nominados? · Premios Tango Siglo XXI 2026</div>
+            <div class="video-date">La Morada del Nuevo Tango</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p class="section-label" style="margin-bottom: 1rem;">// Escuchá a los nominados</p>
+        <iframe
+          style="border-radius: 4px; border: 1px solid rgba(229,0,164,0.2);"
+          src="https://open.spotify.com/embed/playlist/0QnH0GrTPUru6ceBMUKSYv?utm_source=generator&theme=0"
+          width="100%"
+          height="352"
+          frameBorder="0"
+          allowfullscreen=""
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy">
+        </iframe>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logos">
+    <img src="img/logos/capitan.png" alt="La Morada del Nuevo Tango" />
+    <img src="img/logos/cuarteto.png" alt="Cuarteto Extraordinario" />
+    <img src="img/logos/gauchito.png" alt="Gauchito Gil" />
+  </div>
+  <p class="footer-copy">
+    © 2026 <span>La Morada del Nuevo Tango</span> · Tango Siglo XXI
+  </p>
+</footer>
+
+<script>
+  // ─── YOUTUBE API ───────────────────────────────────────────────
+  // IMPORTANTE: Reemplazá TU_API_KEY_AQUI con tu clave de Google
+  const API_KEY = 'AIzaSyDrpvMQpEYvapiTPaYf91vl9qiOjKfONXU';
+  const MAX_RESULTS = 6;
+
+  async function getChannelId() {
+    return 'UCNJ084cWrTV7hqJFTsRsOWQ';
+  }
+
+  async function getLatestVideos(channelId) {
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=${MAX_RESULTS}&order=date&type=video&key=${API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.items) return data.items;
+    throw new Error('No se pudieron cargar los videos');
+  }
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+
+  async function loadVideos() {
+    const container = document.getElementById('videos-container');
+    try {
+      const channelId = await getChannelId();
+      const videos = await getLatestVideos(channelId);
+      container.innerHTML = '';
+      videos.forEach(video => {
+        const videoId = video.id.videoId;
+        const title = video.snippet.title;
+        const date = formatDate(video.snippet.publishedAt);
+        const thumb = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+        const url = `https://www.youtube.com/watch?v=${videoId}`;
+        container.innerHTML += `
+          <a href="${url}" target="_blank" class="video-card" style="text-decoration:none; display:block;">
+            <div style="position:relative; aspect-ratio:16/9; overflow:hidden; background:#000;">
+              <img src="${thumb}" alt="${title}"
+                style="width:100%; height:100%; object-fit:cover; display:block; transition: transform 0.3s, opacity 0.3s;"
+                onerror="this.src='https://i.ytimg.com/vi/${videoId}/hqdefault.jpg'"
+                onmouseover="this.style.transform='scale(1.04)';this.style.opacity='0.8'"
+                onmouseout="this.style.transform='scale(1)';this.style.opacity='1'"
+              />
+              <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;">
+                <div style="width:64px; height:64px; background:rgba(229,0,164,0.85); border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(229,0,164,0.6);">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="video-info">
+              <div class="video-title" title="${title}">${title}</div>
+              <div class="video-date">${date}</div>
+            </div>
+          </a>`;
+      });
+    } catch (err) {
+      container.innerHTML = `<div class="videos-error">// Error al cargar videos: ${err.message}<br>Verificá que la API key esté configurada correctamente.</div>`;
+    }
+  }
+
+  loadVideos();
+
+  // ─── NAV activo al hacer scroll ────────────────────────────────
+  const sections = document.querySelectorAll('section, #hero');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.style.color = '';
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.style.color = 'var(--magenta)';
+          }
+        });
+      }
+    });
+  }, { threshold: 0.4 });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
