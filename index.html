@@ -986,4 +986,16 @@
       if (entry.isIntersecting) {
         navScrollLinks.forEach(link => {
           link.style.color = '';
-          if 
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.style.color = 'var(--magenta)';
+          }
+        });
+      }
+    });
+  }, { threshold: 0.4 });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
