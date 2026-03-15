@@ -522,15 +522,75 @@
 
     .footer-copy span { color: var(--magenta); }
 
+    /* ─── HAMBURGUESA ─── */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 200;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 26px;
+      height: 2px;
+      background: var(--white);
+      transition: all 0.3s;
+    }
+
+    .nav-toggle.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle.active span:nth-child(2) { opacity: 0; }
+    .nav-toggle.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
     /* ─── RESPONSIVE ─── */
     @media (max-width: 768px) {
       nav { padding: 1rem 1.5rem; }
-      .nav-links { gap: 1.2rem; }
-      .nav-links a { font-size: 0.9rem; }
-      section { padding: 4rem 1.5rem; }
-      #programa, #equipo, #contacto { padding: 4rem 1.5rem; }
-      .equipo-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+
+      .nav-toggle { display: flex; }
+
+      .nav-links {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(8,8,16,0.97);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2.5rem;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        z-index: 150;
+      }
+
+      .nav-links.open { transform: translateX(0); }
+      .nav-links a { font-size: 1.8rem; }
+
+      section { padding: 4rem 1.2rem; }
+      #programa, #equipo, #contacto, #premios { padding: 4rem 1.2rem; }
+
+      .hero-logo { width: 180px; }
+
+      .section-title { font-size: clamp(2rem, 10vw, 3.5rem); }
+
+      .equipo-grid { grid-template-columns: repeat(2, 1fr); }
       .videos-grid { grid-template-columns: 1fr; }
+
+      .plataformas { flex-direction: column; }
+      .plataforma-badge { justify-content: center; }
+
+      #premios > div > div[style*="grid"] {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .redes-grid { gap: 1rem; }
+      .red-card { min-width: 120px; padding: 1.5rem 1rem; }
+
+      .footer-logos img { height: 36px; }
+
+      .hero-cta { flex-direction: column; align-items: center; }
+      .btn { width: 100%; max-width: 280px; text-align: center; }
     }
   </style>
 </head>
@@ -541,13 +601,18 @@
   <a href="#hero" class="nav-logo">
     <img src="img/logos/capitan.png" alt="La Morada del Nuevo Tango" />
   </a>
-  <ul class="nav-links">
-    <li><a href="#programa">El Programa</a></li>
-    <li><a href="#videos">Videos</a></li>
-    <li><a href="#premios">Premios</a></li>
-    <li><a href="#equipo">Equipo</a></li>
-    <li><a href="#redes">Redes</a></li>
-    <li><a href="#contacto">Contacto</a></li>
+  <div class="nav-toggle" id="navToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#programa" class="nav-link">El Programa</a></li>
+    <li><a href="#videos" class="nav-link">Videos</a></li>
+    <li><a href="#premios" class="nav-link">Premios</a></li>
+    <li><a href="#equipo" class="nav-link">Equipo</a></li>
+    <li><a href="#redes" class="nav-link">Redes</a></li>
+    <li><a href="#contacto" class="nav-link">Contacto</a></li>
   </ul>
 </nav>
 
@@ -812,6 +877,25 @@
 </footer>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // ─── MENÚ HAMBURGUESA ──────────────────────────────────────────
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  const navLinkItems = document.querySelectorAll('.nav-link');
+
+  navToggle.addEventListener('click', () => {
+    navToggle.classList.toggle('active');
+    navLinks.classList.toggle('open');
+    document.body.style.overflow = navLinks.classList.contains('open') ? 'hidden' : '';
+  });
+
+  navLinkItems.forEach(link => {
+    link.addEventListener('click', () => {
+      navToggle.classList.remove('active');
+      navLinks.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+
   // ─── YOUTUBE API ───────────────────────────────────────────────
   // IMPORTANTE: Reemplazá TU_API_KEY_AQUI con tu clave de Google
   const API_KEY = 'AIzaSyB9U-2cwKb00WU-L1d57megS5-qwVrgkJw';
