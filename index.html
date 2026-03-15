@@ -879,19 +879,19 @@
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // ─── MENÚ HAMBURGUESA ──────────────────────────────────────────
   const navToggle = document.getElementById('navToggle');
-  const navLinksObs = document.querySelectorAll('.nav-links a');
+  const navMenu = document.getElementById('navLinks');
   const navLinkItems = document.querySelectorAll('.nav-link');
 
   navToggle.addEventListener('click', () => {
     navToggle.classList.toggle('active');
-    navLinksObs.forEach(link => link.classList.toggle('open'));
-    document.body.style.overflow = navLinks.classList.contains('open') ? 'hidden' : '';
+    navMenu.classList.toggle('open');
+    document.body.style.overflow = navMenu.classList.contains('open') ? 'hidden' : '';
   });
 
   navLinkItems.forEach(link => {
     link.addEventListener('click', () => {
       navToggle.classList.remove('active');
-      navLinks.classList.remove('open');
+      navMenu.classList.remove('open');
       document.body.style.overflow = '';
     });
   });
@@ -979,11 +979,11 @@
 
   // ─── NAV activo al hacer scroll ────────────────────────────────
   const sections = document.querySelectorAll('section, #hero');
-  const navLinks = document.querySelectorAll('.nav-links a');
+  const navScrollLinks = document.querySelectorAll('.nav-links a');
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        navLinks.forEach(link => {
+        navScrollLinks.forEach(link => {
           link.style.color = '';
           if 
