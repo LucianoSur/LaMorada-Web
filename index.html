@@ -581,9 +581,33 @@
     }
 
     .columna-videos {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
+      flex-direction: column;
       gap: 0.8rem;
+    }
+
+    .columna-player iframe {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: none;
+      display: block;
+    }
+
+    .columna-player-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      color: var(--white);
+      padding: 0.5rem 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .columna-thumbs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
     }
 
     .columna-video-thumb {
@@ -623,7 +647,7 @@
 
     @media (max-width: 768px) {
       .columnas-grid { grid-template-columns: 1fr; }
-      .columna-videos { grid-template-columns: 1fr 1fr; }
+      .columna-thumbs { grid-template-columns: repeat(3, 1fr); }
     }
 
     /* ─── AMIGOS ─── */
@@ -1184,19 +1208,41 @@
   function renderPlaylistVideos(items, containerId) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
-    items.forEach(item => {
-      const videoId = item.snippet.resourceId.videoId;
-      const title = item.snippet.title;
-      const thumb = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
-      const url = `https://www.youtube.com/watch?v=${videoId}`;
-      container.innerHTML += `
-        <a href="${url}" target="_blank" class="columna-video-thumb">
-          <img src="${thumb}" alt="${title}" />
-          <div class="play-btn">
-            <div><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div>
-          </div>
-        </a>`;
-    });
+    if (!items || items.length === 0) return;
+
+    // Primer video como player embebido
+    const first = items[0];
+    const firstId = first.snippet.resourceId.videoId;
+    const firstTitle = first.snippet.title;
+    container.innerHTML += `
+      <div class="columna-player">
+        <iframe
+          src="https://www.youtube.com/embed/${firstId}"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen loading="lazy">
+        </iframe>
+        <div class="columna-player-title">${firstTitle}</div>
+      </div>`;
+
+    // Resto como thumbnails
+    if (items.length > 1) {
+      let thumbsHtml = '<div class="columna-thumbs">';
+      items.slice(1).forEach(item => {
+        const videoId = item.snippet.resourceId.videoId;
+        const title = item.snippet.title;
+        const thumb = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
+        const url = `https://www.youtube.com/watch?v=${videoId}`;
+        thumbsHtml += `
+          <a href="${url}" target="_blank" class="columna-video-thumb" title="${title}">
+            <img src="${thumb}" alt="${title}" />
+            <div class="play-btn">
+              <div><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div>
+            </div>
+          </a>`;
+      });
+      thumbsHtml += '</div>';
+      container.innerHTML += thumbsHtml;
+    }
   }
 
   PLAYLISTS.forEach(pl => loadPlaylistVideos(pl.id, pl.container));
