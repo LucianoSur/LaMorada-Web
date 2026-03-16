@@ -522,6 +522,147 @@
 
     .footer-copy span { color: var(--magenta); }
 
+    /* ─── COLUMNAS ─── */
+    .columnas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 2rem;
+    }
+
+    .columna-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(229,0,164,0.15);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.3s;
+    }
+
+    .columna-card:hover { border-color: var(--magenta); }
+
+    .columna-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .columna-numero {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      color: var(--magenta);
+      opacity: 0.4;
+      line-height: 1;
+      min-width: 40px;
+    }
+
+    .columna-titulo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.05em;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .columna-conductor {
+      font-size: 0.85rem;
+      color: var(--magenta);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+
+    .columna-desc {
+      font-size: 1rem;
+      font-weight: 300;
+      line-height: 1.7;
+      color: #aaaacc;
+      margin-bottom: 1.5rem;
+    }
+
+    .columna-videos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+    }
+
+    .columna-video-thumb {
+      position: relative;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .columna-video-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    .columna-video-thumb:hover img { transform: scale(1.04); opacity: 0.8; }
+
+    .columna-video-thumb .play-btn {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .columna-video-thumb .play-btn div {
+      width: 36px; height: 36px;
+      background: rgba(229,0,164,0.85);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+      .columnas-grid { grid-template-columns: 1fr; }
+      .columna-videos { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ─── AMIGOS ─── */
+    .amigo-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      padding: 1.8rem;
+      border: 1px solid rgba(229,0,164,0.15);
+      background: var(--card-bg);
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .amigo-card:hover { border-color: var(--cyan); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,229,255,0.1); }
+
+    .amigo-nombre {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      color: var(--white);
+    }
+
+    .amigo-desc {
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: #aaaacc;
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .amigo-link {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      margin-top: 0.5rem;
+    }
+
     /* ─── HAMBURGUESA ─── */
     .nav-toggle {
       display: none;
@@ -553,14 +694,16 @@
       .nav-links {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(8,8,16,0.97);
+        background: rgba(8,8,16,0.98);
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 2.5rem;
+        gap: 2rem;
         transform: translateX(100%);
         transition: transform 0.3s ease;
         z-index: 150;
+        overflow-y: auto;
+        padding: 2rem;
       }
 
       .nav-links.open { transform: translateX(0); }
@@ -611,7 +754,9 @@
     <li><a href="#videos" class="nav-link">Videos</a></li>
     <li><a href="#premios" class="nav-link">Premios</a></li>
     <li><a href="#equipo" class="nav-link">Equipo</a></li>
+    <li><a href="#columnas" class="nav-link">Columnas</a></li>
     <li><a href="#redes" class="nav-link">Redes</a></li>
+    <li><a href="#amigos" class="nav-link">Amigos</a></li>
     <li><a href="#contacto" class="nav-link">Contacto</a></li>
   </ul>
 </nav>
@@ -635,10 +780,22 @@
     <h2 class="section-title">El <span>Programa</span></h2>
     <div class="divider"></div>
     <p class="programa-text">
-      <strong>La Morada del Nuevo Tango</strong> es un espacio dedicado al <strong>Tango Siglo XXI</strong> —
-      la música que nació del tango y sigue transformándose. Cada emisión es un recorrido
-      por las voces, los instrumentos y las ideas que construyen el tango contemporáneo.
-      Columnistas, músicos y conversaciones que van al fondo del asunto.
+      <strong>La Morada del Nuevo Tango</strong> es un espacio dedicado al <strong>Tango del Siglo XXI</strong>:
+      la música que nace del tango pero no se queda quieta.
+    </p>
+    <p class="programa-text">
+      Desde Avellaneda, cada emisión se mete en el corazón de la escena contemporánea:
+      orquestas nuevas, compositores, cantores, instrumentistas y proyectos que empujan
+      al tango hacia adelante.
+    </p>
+    <p class="programa-text">
+      Con columnas, entrevistas y conversaciones sin cassette, <strong>La Morada</strong>
+      busca entender qué está pasando hoy en el tango: sus estéticas, sus tensiones
+      y su manera de dialogar con la época.
+    </p>
+    <p class="programa-text">
+      <strong>Todos los jueves de 20 a 22</strong>, abrimos la puerta para escuchar,
+      pensar y discutir el tango que se está haciendo ahora.
     </p>
     <div class="plataformas">
       <a href="https://www.youtube.com/@LaMoradatango" target="_blank" class="plataforma-badge">
@@ -664,6 +821,63 @@
   <div class="divider"></div>
   <div id="videos-container" class="videos-grid">
     <div class="videos-loading">// CARGANDO TRANSMISIONES...</div>
+  </div>
+</section>
+
+<!-- PREMIOS -->
+<section id="premios" style="background: var(--bg2); max-width: 100%; padding: 6rem 3rem;">
+  <div style="max-width: 1300px; margin: 0 auto;">
+    <p class="section-label">// 006</p>
+    <h2 class="section-title">Premios <span>Tango Siglo XXI</span></h2>
+    <div class="divider"></div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
+
+      <div>
+        <p class="programa-text">
+          Los <strong>Premios Tango Siglo XXI</strong> son el único reconocimiento independiente
+          dedicado a la producción discográfica del tango contemporáneo. Otorgados por periodistas
+          y prensa especializada, celebran a los artistas que construyen el tango de hoy.
+          <br><br>
+          La <strong>2° Edición</strong> se entrega en <strong>mayo de 2026</strong>.
+          La Morada del Nuevo Tango es Media Partner oficial.
+        </p>
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
+          <a href="https://premiostangosiglo21.com.ar/nominaciones-2026/" target="_blank" class="btn btn-primary">Ver Nominados 2026</a>
+          <a href="https://premiostangosiglo21.com.ar/" target="_blank" class="btn btn-outline">Sitio oficial</a>
+        </div>
+
+        <p class="section-label" style="margin-bottom: 1rem;">// Nuestra cobertura</p>
+        <div class="video-card">
+          <iframe
+            src="https://www.youtube.com/embed/Vp2hFDoxLpI"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            loading="lazy">
+          </iframe>
+          <div class="video-info">
+            <div class="video-title">¿Quiénes son los Nominados? · Premios Tango Siglo XXI 2026</div>
+            <div class="video-date">La Morada del Nuevo Tango</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p class="section-label" style="margin-bottom: 1rem;">// Escuchá a los nominados</p>
+        <iframe
+          style="border-radius: 4px; border: 1px solid rgba(229,0,164,0.2);"
+          src="https://open.spotify.com/embed/playlist/0QnH0GrTPUru6ceBMUKSYv?utm_source=generator&theme=0"
+          width="100%"
+          height="352"
+          frameBorder="0"
+          allowfullscreen=""
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy">
+        </iframe>
+      </div>
+
+    </div>
   </div>
 </section>
 
@@ -743,6 +957,61 @@
   </div>
 </section>
 
+<!-- COLUMNAS -->
+<section id="columnas" style="background: var(--bg2); max-width: 100%; padding: 6rem 3rem;">
+  <div style="max-width: 1300px; margin: 0 auto;">
+    <p class="section-label">// 004</p>
+    <h2 class="section-title">Las <span>Columnas</span></h2>
+    <div class="divider"></div>
+
+    <div class="columnas-grid">
+
+      <!-- CONTRABAJO X CONTRABAJO -->
+      <div class="columna-card">
+        <div class="columna-header">
+          <div class="columna-numero">01</div>
+          <div>
+            <div class="columna-titulo">Contrabajo x Contrabajo</div>
+            <div class="columna-conductor">con Teo Ballesi</div>
+          </div>
+        </div>
+        <p class="columna-desc">Teo Ballesi se mete de lleno en el universo del instrumento más profundo del tango. Entrevistas a contrabajistas de la escena, yeites, trucos y experiencias de oficio en formato de masterclass, con música en vivo desde el estudio de La Morada.</p>
+        <div class="columna-videos" id="col-contrabajo"></div>
+        <a href="https://www.youtube.com/playlist?list=PL1RnVj-h7YAugGMUIWeCCidEAmplt7ipy" target="_blank" class="btn btn-outline" style="margin-top: 1.5rem; display: inline-block;">Ver playlist completa</a>
+      </div>
+
+      <!-- ESTO ES TANGO -->
+      <div class="columna-card">
+        <div class="columna-header">
+          <div class="columna-numero">02</div>
+          <div>
+            <div class="columna-titulo">¿Esto es Tango?</div>
+            <div class="columna-conductor">con Nehuén Martino</div>
+          </div>
+        </div>
+        <p class="columna-desc">Nehuén Martino se hace una pregunta tan simple como incómoda: ¿qué es lo que hace al tango, tango? Conversaciones con músicos, compositores y referentes que exploran los límites, las tradiciones y las transformaciones del género en el siglo XXI.</p>
+        <div class="columna-videos" id="col-estotango"></div>
+        <a href="https://www.youtube.com/playlist?list=PL1RnVj-h7YAvYpQl-cS5ClXPkANhLbyfL" target="_blank" class="btn btn-outline" style="margin-top: 1.5rem; display: inline-block;">Ver playlist completa</a>
+      </div>
+
+      <!-- TANGOS DE COSECHA PROPIA -->
+      <div class="columna-card">
+        <div class="columna-header">
+          <div class="columna-numero">03</div>
+          <div>
+            <div class="columna-titulo">Tangos de Cosecha Propia</div>
+            <div class="columna-conductor">La Morada del Nuevo Tango</div>
+          </div>
+        </div>
+        <p class="columna-desc">El espacio dedicado a la producción musical de La Morada. Tangos grabados y producidos en el estudio del programa, donde músicos invitados interpretan obras propias y repertorio nuevo — un archivo vivo del tango que se está creando hoy.</p>
+        <div class="columna-videos" id="col-cosecha"></div>
+        <a href="https://www.youtube.com/playlist?list=PL1RnVj-h7YAvhYYmlDGcTve3ums8I28Vi" target="_blank" class="btn btn-outline" style="margin-top: 1.5rem; display: inline-block;">Ver playlist completa</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- REDES -->
 <section id="redes">
   <p class="section-label">// 004</p>
@@ -778,6 +1047,43 @@
   </div>
 </section>
 
+<!-- AMIGOS -->
+<section id="amigos" style="background: var(--bg); max-width: 100%; padding: 6rem 3rem;">
+  <div style="max-width: 1300px; margin: 0 auto;">
+    <p class="section-label">// 009</p>
+    <h2 class="section-title">Amigos de <span>La Morada</span></h2>
+    <div class="divider"></div>
+    <p class="programa-text" style="margin-bottom: 2.5rem;">Medios, portales y proyectos que forman parte de la escena del tango contemporáneo.</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem;">
+
+      <a href="https://revistaelsordo.com/" target="_blank" class="amigo-card">
+        <div class="amigo-nombre">Revista El Sordo</div>
+        <div class="amigo-desc">Periodismo cultural independiente con foco en el tango contemporáneo.</div>
+        <div class="amigo-link">revistaelsordo.com →</div>
+      </a>
+
+      <a href="https://www.fracturaexpuesta.com.ar/gotan/" target="_blank" class="amigo-card">
+        <div class="amigo-nombre">Fractura Expuesta</div>
+        <div class="amigo-desc">Portal de referencia en la cobertura del tango actual con más de dos décadas de trayectoria.</div>
+        <div class="amigo-link">fracturaexpuesta.com.ar →</div>
+      </a>
+
+      <a href="https://www.fracturaexpuesta.com.ar/doblearadio/" target="_blank" class="amigo-card">
+        <div class="amigo-nombre">Doble A Radio</div>
+        <div class="amigo-desc">Radio online dedicada al tango contemporáneo — así suena el tango, hoy.</div>
+        <div class="amigo-link">doblearadio →</div>
+      </a>
+
+      <a href="https://www.radiocaff.com.ar/" target="_blank" class="amigo-card">
+        <div class="amigo-nombre">Radio CAFF</div>
+        <div class="amigo-desc">La radio del Club Atlético Fernández Fierro. Tango Siglo XXI, en un mundo en ruinas.</div>
+        <div class="amigo-link">radiocaff.com.ar →</div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
 <!-- CONTACTO -->
 <section id="contacto" style="text-align: center;">
   <p class="section-label">// 005</p>
@@ -804,63 +1110,6 @@
       </div>
     </a>
     <a href="https://linktr.ee/lamoradadeltango" target="_blank" class="btn btn-primary">Visitar Linktree</a>
-  </div>
-</section>
-
-<!-- PREMIOS -->
-<section id="premios" style="background: var(--bg2); max-width: 100%; padding: 6rem 3rem;">
-  <div style="max-width: 1300px; margin: 0 auto;">
-    <p class="section-label">// 006</p>
-    <h2 class="section-title">Premios <span>Tango Siglo XXI</span></h2>
-    <div class="divider"></div>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
-
-      <div>
-        <p class="programa-text">
-          Los <strong>Premios Tango Siglo XXI</strong> son el único reconocimiento independiente
-          dedicado a la producción discográfica del tango contemporáneo. Otorgados por periodistas
-          y prensa especializada, celebran a los artistas que construyen el tango de hoy.
-          <br><br>
-          La <strong>2° Edición</strong> se entrega en <strong>mayo de 2026</strong>.
-          La Morada del Nuevo Tango es Media Partner oficial.
-        </p>
-
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
-          <a href="https://premiostangosiglo21.com.ar/nominaciones-2026/" target="_blank" class="btn btn-primary">Ver Nominados 2026</a>
-          <a href="https://premiostangosiglo21.com.ar/" target="_blank" class="btn btn-outline">Sitio oficial</a>
-        </div>
-
-        <p class="section-label" style="margin-bottom: 1rem;">// Nuestra cobertura</p>
-        <div class="video-card">
-          <iframe
-            src="https://www.youtube.com/embed/Vp2hFDoxLpI"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            loading="lazy">
-          </iframe>
-          <div class="video-info">
-            <div class="video-title">¿Quiénes son los Nominados? · Premios Tango Siglo XXI 2026</div>
-            <div class="video-date">La Morada del Nuevo Tango</div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <p class="section-label" style="margin-bottom: 1rem;">// Escuchá a los nominados</p>
-        <iframe
-          style="border-radius: 4px; border: 1px solid rgba(229,0,164,0.2);"
-          src="https://open.spotify.com/embed/playlist/0QnH0GrTPUru6ceBMUKSYv?utm_source=generator&theme=0"
-          width="100%"
-          height="352"
-          frameBorder="0"
-          allowfullscreen=""
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy">
-        </iframe>
-      </div>
-
-    </div>
   </div>
 </section>
 
@@ -895,6 +1144,62 @@
       document.body.style.overflow = '';
     });
   });
+
+  // ─── COLUMNAS ──────────────────────────────────────────────────
+  const PLAYLISTS = [
+    { id: 'PL1RnVj-h7YAugGMUIWeCCidEAmplt7ipy', container: 'col-contrabajo' },
+    { id: 'PL1RnVj-h7YAvYpQl-cS5ClXPkANhLbyfL', container: 'col-estotango' },
+    { id: 'PL1RnVj-h7YAvhYYmlDGcTve3ums8I28Vi',  container: 'col-cosecha' }
+  ];
+
+  async function loadPlaylistVideos(playlistId, containerId) {
+    const CACHE_KEY = `morada_pl_${playlistId}`;
+    const CACHE_TIME = `morada_pl_time_${playlistId}`;
+    const CACHE_HOURS = 24;
+
+    const cached = localStorage.getItem(CACHE_KEY);
+    const cachedTime = localStorage.getItem(CACHE_TIME);
+    if (cached && cachedTime) {
+      const hoursAgo = (Date.now() - parseInt(cachedTime)) / (1000 * 60 * 60);
+      if (hoursAgo < CACHE_HOURS) {
+        renderPlaylistVideos(JSON.parse(cached), containerId);
+        return;
+      }
+    }
+
+    try {
+      const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=4&playlistId=${playlistId}&key=${API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.items) {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data.items));
+        localStorage.setItem(CACHE_TIME, Date.now().toString());
+        renderPlaylistVideos(data.items, containerId);
+      }
+    } catch (err) {
+      document.getElementById(containerId).innerHTML = '';
+    }
+  }
+
+  function renderPlaylistVideos(items, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    items.forEach(item => {
+      const videoId = item.snippet.resourceId.videoId;
+      const title = item.snippet.title;
+      const thumb = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
+      const url = `https://www.youtube.com/watch?v=${videoId}`;
+      container.innerHTML += `
+        <a href="${url}" target="_blank" class="columna-video-thumb">
+          <img src="${thumb}" alt="${title}" />
+          <div class="play-btn">
+            <div><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div>
+          </div>
+        </a>`;
+    });
+  }
+
+  PLAYLISTS.forEach(pl => loadPlaylistVideos(pl.id, pl.container));
 
   // ─── YOUTUBE API ───────────────────────────────────────────────
   // IMPORTANTE: Reemplazá TU_API_KEY_AQUI con tu clave de Google
