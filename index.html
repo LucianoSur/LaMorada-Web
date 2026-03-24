@@ -1314,7 +1314,7 @@
       }
     }
 
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=${MAX_RESULTS}&order=date&type=video&key=${API_KEY}`;
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=${MAX_RESULTS}&order=date&type=video&videoDuration=medium&key=${API_KEY}`;
     const res = await fetch(url);
     const data = await res.json();
     if (data.items) {
