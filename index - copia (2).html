@@ -1263,29 +1263,14 @@
       }
     }
 
-    // Dos llamadas: medium (4-20 min) y long (más de 20 min) — excluye Shorts
-    const baseUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=${MAX_RESULTS}&order=date&type=video&key=${API_KEY}`;
-    const [resMedium, resLong] = await Promise.all([
-      fetch(baseUrl + '&videoDuration=medium'),
-      fetch(baseUrl + '&videoDuration=long')
-    ]);
-    const [dataMedium, dataLong] = await Promise.all([
-      resMedium.json(),
-      resLong.json()
-    ]);
-
-    const itemsMedium = dataMedium.items || [];
-    const itemsLong = dataLong.items || [];
-
-    // Combinar, ordenar por fecha y tomar los 6 más recientes
-    const combined = [...itemsMedium, ...itemsLong]
-      .sort((a, b) => new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt))
-      .slice(0, MAX_RESULTS);
-
-    if (combined.length > 0) {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(combined));
+    // Si no hay caché o expiró, llamar a la API
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=${MAX_RESULTS}&order=date&type=video&key=${API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.items) {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data.items));
       localStorage.setItem(CACHE_TIME, Date.now().toString());
-      return combined;
+      return data.items;
     }
     throw new Error('No se pudieron cargar los videos');
   }
