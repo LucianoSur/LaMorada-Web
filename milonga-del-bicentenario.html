@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Milonga del Bicentenario · La Morada del Nuevo Tango</title>
+  <link rel="icon" type="image/png" href="img/logos/capitan.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #080810;
+      --bg2: #0d0d1a;
+      --magenta: #e500a4;
+      --cyan: #00e5ff;
+      --yellow: #ffe600;
+      --gold: #d4a017;
+      --gold-light: #f0c84a;
+      --white: #f0f0f0;
+      --gray: #555570;
+      --card-bg: #10101e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Barlow Condensed', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* SCANLINES */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 3rem;
+      background: rgba(8,8,16,0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(212,160,23,0.3);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      text-decoration: none;
+    }
+
+    .nav-logo img {
+      height: 40px;
+      filter: drop-shadow(0 0 8px var(--magenta));
+    }
+
+    .nav-logo-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.2em;
+      color: var(--gray);
+      line-height: 1.2;
+    }
+
+    .nav-logo-text strong {
+      display: block;
+      color: var(--gold-light);
+      font-size: 1.1rem;
+    }
+
+    .nav-back {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: var(--cyan);
+      text-decoration: none;
+      border: 1px solid rgba(0,229,255,0.3);
+      padding: 0.5rem 1.2rem;
+      transition: all 0.2s;
+    }
+
+    .nav-back:hover {
+      background: rgba(0,229,255,0.1);
+      border-color: var(--cyan);
+    }
+
+    /* ─── HERO ─── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      padding: 8rem 2rem 5rem;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 40%, rgba(212,160,23,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 20% 80%, rgba(229,0,164,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 40% at 80% 10%, rgba(0,229,255,0.05) 0%, transparent 50%);
+    }
+
+    /* Animated grid - perspective floor */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(212,160,23,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,160,23,0.07) 1px, transparent 1px);
+      background-size: 60px 60px;
+      transform: perspective(600px) rotateX(30deg) scale(1.5) translateY(20%);
+      transform-origin: bottom;
+    }
+
+    .ornament {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0; left: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .ornament::before, .ornament::after {
+      content: '';
+      position: absolute;
+      border: 1px solid rgba(212,160,23,0.12);
+    }
+
+    .ornament::before {
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .ornament::after {
+      width: 900px; height: 900px;
+      border-radius: 50%;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Corner ornaments */
+    .corner {
+      position: absolute;
+      width: 80px; height: 80px;
+      border-color: rgba(212,160,23,0.25);
+      border-style: solid;
+    }
+
+    .corner-tl { top: 80px; left: 40px; border-width: 2px 0 0 2px; }
+    .corner-tr { top: 80px; right: 40px; border-width: 2px 2px 0 0; }
+    .corner-bl { bottom: 40px; left: 40px; border-width: 0 0 2px 2px; }
+    .corner-br { bottom: 40px; right: 40px; border-width: 0 2px 2px 0; }
+
+    .hero-eyebrow {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.5em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-eyebrow::before, .hero-eyebrow::after {
+      content: '—';
+      margin: 0 1rem;
+      opacity: 0.5;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 12vw, 10rem);
+      letter-spacing: 0.02em;
+      line-height: 0.85;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title .word1 {
+      color: var(--white);
+      font-size: 55%;
+      letter-spacing: 0.15em;
+      display: block;
+    }
+
+    .hero-title .word2 {
+      color: var(--gold-light);
+      text-shadow: 0 0 40px rgba(212,160,23,0.5), 0 0 80px rgba(212,160,23,0.2);
+      display: block;
+    }
+
+    .hero-title .word3 {
+      color: var(--magenta);
+      font-size: 38%;
+      letter-spacing: 0.4em;
+      text-shadow: 0 0 20px rgba(229,0,164,0.6);
+      display: block;
+      margin-top: 0.5rem;
+    }
+
+    .hero-date-box {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 3rem;
+      border: 1px solid rgba(212,160,23,0.3);
+      padding: 1.5rem 3rem;
+      background: rgba(212,160,23,0.05);
+      margin: 2rem 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .hero-date-box::before, .hero-date-box::after {
+      content: '◆';
+      color: var(--gold);
+      opacity: 0.4;
+      font-size: 0.6rem;
+      position: absolute;
+    }
+
+    .hero-date-box::before { top: -6px; left: -6px; }
+    .hero-date-box::after { bottom: -6px; right: -6px; }
+
+    .date-item {
+      text-align: center;
+    }
+
+    .date-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+
+    .date-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 0.05em;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .date-sub {
+      font-size: 0.75rem;
+      color: var(--gray);
+      letter-spacing: 0.1em;
+      margin-top: 0.2rem;
+    }
+
+    .date-sep {
+      width: 1px;
+      height: 50px;
+      background: rgba(212,160,23,0.25);
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.15em;
+      padding: 0.8rem 2.2rem;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-block;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #080810;
+      box-shadow: 0 0 20px rgba(212,160,23,0.4);
+    }
+
+    .btn-gold:hover { box-shadow: 0 0 40px rgba(212,160,23,0.7); transform: translateY(-2px); background: var(--gold-light); }
+
+    .btn-magenta {
+      background: var(--magenta);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(229,0,164,0.4);
+    }
+
+    .btn-magenta:hover { box-shadow: 0 0 40px rgba(229,0,164,0.7); transform: translateY(-2px); }
+
+    .btn-outline-gold {
+      background: transparent;
+      color: var(--gold-light);
+      border: 1px solid rgba(212,160,23,0.5);
+    }
+
+    .btn-outline-gold:hover { background: rgba(212,160,23,0.08); border-color: var(--gold); transform: translateY(-2px); }
+
+    /* ─── COUNTDOWN ─── */
+    #countdown-section {
+      background: rgba(212,160,23,0.04);
+      border-top: 1px solid rgba(212,160,23,0.15);
+      border-bottom: 1px solid rgba(212,160,23,0.15);
+      padding: 3rem;
+      text-align: center;
+    }
+
+    .countdown-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+
+    .countdown-grid {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .countdown-unit {
+      text-align: center;
+      min-width: 80px;
+    }
+
+    .countdown-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5rem);
+      color: var(--gold-light);
+      text-shadow: 0 0 20px rgba(212,160,23,0.4);
+      line-height: 1;
+      display: block;
+    }
+
+    .countdown-sub {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      color: var(--gray);
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+
+    .countdown-sep {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      color: rgba(212,160,23,0.2);
+      align-self: flex-start;
+      padding-top: 0.3rem;
+    }
+
+    /* ─── SECCIONES GENERALES ─── */
+    .section-wrap {
+      padding: 5rem 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .full-bg { max-width: 100%; padding: 5rem 3rem; }
+    .full-bg > .section-wrap { padding: 0; }
+
+    .section-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .section-title span { color: var(--gold-light); }
+    .section-title .magenta { color: var(--magenta); }
+
+    .divider {
+      width: 80px; height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--magenta));
+      margin-bottom: 3rem;
+    }
+
+    /* ─── INFO SECTION ─── */
+    #info { background: var(--bg2); max-width: 100%; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .info-text {
+      font-size: 1.15rem;
+      font-weight: 300;
+      line-height: 1.9;
+      color: #aaaacc;
+    }
+
+    .info-text strong { color: var(--white); font-weight: 600; }
+    .info-text .gold { color: var(--gold-light); }
+
+    .info-details {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.2rem 1.5rem;
+      background: rgba(212,160,23,0.04);
+      border: 1px solid rgba(212,160,23,0.12);
+      border-left: 3px solid var(--gold);
+    }
+
+    .detail-icon {
+      font-size: 1.3rem;
+      opacity: 0.8;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    .detail-content {}
+
+    .detail-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      margin-bottom: 0.3rem;
+    }
+
+    .detail-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.05em;
+      color: var(--white);
+      line-height: 1.2;
+    }
+
+    .detail-sub {
+      font-size: 0.85rem;
+      color: var(--gray);
+      margin-top: 0.15rem;
+    }
+
+    /* ─── ARTISTAS ─── */
+    #artistas { background: var(--bg); }
+
+    .artistas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .artista-card {
+      position: relative;
+      background: var(--card-bg);
+      border: 1px solid rgba(212,160,23,0.12);
+      padding: 2rem;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .artista-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(212,160,23,0.1);
+    }
+
+    .artista-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: rgba(212,160,23,0.3);
+      margin-bottom: 1rem;
+    }
+
+    .artista-emoji { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
+
+    .artista-nombre {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .artista-rol {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+    }
+
+    .artista-desc {
+      font-size: 0.9rem;
+      color: #8888aa;
+      line-height: 1.6;
+    }
+
+    /* ─── TICKETS ─── */
+    #tickets { background: var(--bg2); max-width: 100%; }
+
+    .tickets-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .tickets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .ticket-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(212,160,23,0.15);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .ticket-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+
+    .ticket-card.featured {
+      border-color: var(--gold);
+      box-shadow: 0 0 30px rgba(212,160,23,0.15);
+    }
+
+    .ticket-badge {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      padding: 0.3rem 0.8rem;
+      background: var(--gold);
+      color: #080810;
+      text-transform: uppercase;
+    }
+
+    .ticket-inner {
+      padding: 2rem;
+    }
+
+    .ticket-tipo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .ticket-nombre {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .ticket-precio {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      color: var(--gold-light);
+      text-shadow: 0 0 20px rgba(212,160,23,0.3);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .ticket-precio span {
+      font-size: 1.5rem;
+      opacity: 0.6;
+    }
+
+    .ticket-perks {
+      list-style: none;
+      margin: 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .ticket-perks li {
+      font-size: 0.95rem;
+      color: #aaaacc;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .ticket-perks li::before {
+      content: '◆';
+      color: var(--gold);
+      font-size: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .ticket-perks li.disabled {
+      opacity: 0.35;
+      text-decoration: line-through;
+    }
+
+    .ticket-perks li.disabled::before { color: var(--gray); }
+
+    .ticket-sep {
+      height: 1px;
+      background: rgba(212,160,23,0.1);
+      margin: 1.5rem 0;
+    }
+
+    .ticket-nota {
+      font-size: 0.8rem;
+      color: var(--gray);
+      letter-spacing: 0.05em;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ─── FORMULARIO DE RESERVA ─── */
+    #reserva { background: var(--bg); }
+
+    .reserva-container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .reserva-intro {
+      font-size: 1.1rem;
+      color: #aaaacc;
+      line-height: 1.8;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Paso a paso */
+    .steps {
+      display: flex;
+      gap: 0;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      height: 1px;
+      background: rgba(212,160,23,0.2);
+      z-index: 0;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-num {
+      width: 40px; height: 40px;
+      border: 2px solid rgba(212,160,23,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      color: var(--gray);
+      background: var(--bg);
+      margin: 0 auto 0.5rem;
+      transition: all 0.3s;
+    }
+
+    .step.active .step-num {
+      border-color: var(--gold);
+      color: var(--gold-light);
+      box-shadow: 0 0 15px rgba(212,160,23,0.3);
+    }
+
+    .step.done .step-num {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #080810;
+    }
+
+    .step-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      color: var(--gray);
+      text-transform: uppercase;
+    }
+
+    .step.active .step-label { color: var(--gold); }
+
+    /* Form steps */
+    .form-step { display: none; }
+    .form-step.active { display: block; }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: rgba(212,160,23,0.04);
+      border: 1px solid rgba(212,160,23,0.2);
+      color: var(--white);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      padding: 0.9rem 1.2rem;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--gold);
+      background: rgba(212,160,23,0.07);
+    }
+
+    .form-select option {
+      background: #0d0d1a;
+      color: var(--white);
+    }
+
+    .form-textarea { resize: vertical; min-height: 100px; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-hint {
+      font-size: 0.8rem;
+      color: var(--gray);
+      margin-top: 0.4rem;
+    }
+
+    /* Selector de mesas */
+    .mesas-section {
+      margin-bottom: 2rem;
+    }
+
+    .mesas-legend {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .legend-box {
+      width: 16px; height: 16px;
+      border: 1px solid;
+    }
+
+    .legend-box.libre { border-color: rgba(212,160,23,0.4); background: rgba(212,160,23,0.08); }
+    .legend-box.ocupada { border-color: rgba(85,85,112,0.4); background: rgba(85,85,112,0.15); }
+    .legend-box.seleccionada { border-color: var(--gold); background: rgba(212,160,23,0.25); }
+    .legend-box.premium { border-color: var(--magenta); background: rgba(229,0,164,0.08); }
+
+    .mapa-escenario {
+      text-align: center;
+      padding: 0.8rem;
+      background: rgba(229,0,164,0.08);
+      border: 1px solid rgba(229,0,164,0.2);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: var(--magenta);
+      margin-bottom: 1.5rem;
+    }
+
+    .mapa-pista {
+      border: 1px dashed rgba(212,160,23,0.2);
+      border-radius: 50%;
+      padding: 1rem;
+      text-align: center;
+      margin: 1rem auto;
+      max-width: 250px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: rgba(212,160,23,0.4);
+    }
+
+    .mesas-grid-map {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .mesas-fila {
+      display: flex;
+      gap: 0.8rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .mesa-btn {
+      width: 70px; height: 70px;
+      border: 1px solid rgba(212,160,23,0.3);
+      background: rgba(212,160,23,0.05);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .mesa-btn:hover:not(.ocupada) {
+      border-color: var(--gold);
+      background: rgba(212,160,23,0.12);
+    }
+
+    .mesa-btn.seleccionada {
+      border-color: var(--gold);
+      background: rgba(212,160,23,0.2);
+      box-shadow: 0 0 15px rgba(212,160,23,0.2);
+    }
+
+    .mesa-btn.ocupada {
+      border-color: rgba(85,85,112,0.3);
+      background: rgba(85,85,112,0.08);
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .mesa-btn.premium {
+      border-color: rgba(229,0,164,0.3);
+      background: rgba(229,0,164,0.05);
+    }
+
+    .mesa-btn.premium:hover:not(.ocupada) {
+      border-color: var(--magenta);
+      background: rgba(229,0,164,0.12);
+    }
+
+    .mesa-btn.premium.seleccionada {
+      border-color: var(--magenta);
+      background: rgba(229,0,164,0.18);
+      box-shadow: 0 0 15px rgba(229,0,164,0.2);
+    }
+
+    .mesa-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .mesa-cap {
+      font-size: 0.65rem;
+      color: var(--gray);
+      margin-top: 0.15rem;
+    }
+
+    .mesa-btn.seleccionada .mesa-num { color: var(--gold-light); }
+    .mesa-btn.premium.seleccionada .mesa-num { color: var(--magenta); }
+
+    /* Resumen compra */
+    .resumen-box {
+      background: rgba(212,160,23,0.04);
+      border: 1px solid rgba(212,160,23,0.2);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .resumen-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+
+    .resumen-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid rgba(212,160,23,0.08);
+      font-size: 0.95rem;
+    }
+
+    .resumen-row:last-child { border-bottom: none; }
+
+    .resumen-key { color: #aaaacc; }
+    .resumen-val { color: var(--white); font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 0.05em; }
+
+    .resumen-total .resumen-key { color: var(--gold-light); font-weight: 600; }
+    .resumen-total .resumen-val { color: var(--gold-light); font-size: 1.8rem; text-shadow: 0 0 15px rgba(212,160,23,0.3); }
+
+    /* Métodos de pago */
+    .metodos-pago {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .metodo-btn {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      border: 1px solid rgba(212,160,23,0.2);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--white);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      width: 100%;
+      text-align: left;
+    }
+
+    .metodo-btn:hover { border-color: var(--gold); background: rgba(212,160,23,0.05); }
+    .metodo-btn.selected { border-color: var(--gold); background: rgba(212,160,23,0.1); }
+
+    .metodo-radio {
+      width: 16px; height: 16px;
+      border: 1px solid rgba(212,160,23,0.5);
+      border-radius: 50%;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .metodo-btn.selected .metodo-radio::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .metodo-icon { font-size: 1.4rem; }
+    .metodo-label { flex: 1; }
+    .metodo-sublabel { font-size: 0.8rem; color: var(--gray); display: block; margin-top: 0.1rem; }
+
+    /* Confirmación */
+    .confirmacion {
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+
+    .confirmacion-icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      animation: pulse-gold 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-gold {
+      0%, 100% { text-shadow: 0 0 20px rgba(212,160,23,0.4); }
+      50% { text-shadow: 0 0 50px rgba(212,160,23,0.8); }
+    }
+
+    .confirmacion-titulo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      letter-spacing: 0.05em;
+      color: var(--gold-light);
+      margin-bottom: 1rem;
+    }
+
+    .confirmacion-texto {
+      font-size: 1.1rem;
+      color: #aaaacc;
+      line-height: 1.8;
+      max-width: 480px;
+      margin: 0 auto 2rem;
+    }
+
+    .codigo-reserva {
+      display: inline-block;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.3em;
+      color: var(--gold-light);
+      border: 1px solid rgba(212,160,23,0.4);
+      padding: 1rem 2rem;
+      background: rgba(212,160,23,0.05);
+      margin-bottom: 2rem;
+    }
+
+    /* ─── MAPA / UBICACIÓN ─── */
+    #ubicacion { background: var(--bg2); max-width: 100%; }
+
+    .ubicacion-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .mapa-placeholder {
+      aspect-ratio: 4/3;
+      background: rgba(212,160,23,0.03);
+      border: 1px solid rgba(212,160,23,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: var(--gray);
+    }
+
+    .mapa-placeholder-icon { font-size: 3rem; opacity: 0.4; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid rgba(212,160,23,0.15);
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      text-align: center;
+    }
+
+    .footer-logos {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer-logos img {
+      height: 40px;
+      filter: grayscale(1) brightness(0.5);
+      transition: filter 0.3s;
+    }
+
+    .footer-logos img:hover { filter: grayscale(0) brightness(1); }
+
+    .footer-copy {
+      font-size: 0.85rem;
+      color: var(--gray);
+      letter-spacing: 0.1em;
+    }
+
+    .footer-copy span { color: var(--gold); }
+
+    /* ─── ALERT ─── */
+    .alert {
+      padding: 1rem 1.5rem;
+      border-left: 3px solid var(--magenta);
+      background: rgba(229,0,164,0.06);
+      font-size: 0.95rem;
+      color: #aaaacc;
+      margin-bottom: 1.5rem;
+    }
+
+    .alert strong { color: var(--magenta); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-logo-text { display: none; }
+
+      .hero-date-box { gap: 1.5rem; padding: 1.2rem 1.5rem; }
+      .date-sep { display: none; }
+
+      .section-wrap, .full-bg { padding: 3.5rem 1.2rem; }
+
+      .info-grid, .ubicacion-grid { grid-template-columns: 1fr; gap: 2rem; }
+
+      .form-row { grid-template-columns: 1fr; }
+
+      .artistas-grid { grid-template-columns: repeat(2, 1fr); }
+
+      .corner-tl, .corner-tr { top: 74px; }
+      .corner-tl { left: 12px; }
+      .corner-tr { right: 12px; }
+      .corner-bl { left: 12px; bottom: 20px; }
+      .corner-br { right: 12px; bottom: 20px; }
+
+      .tickets-grid { grid-template-columns: 1fr; }
+
+      .hero-cta { flex-direction: column; align-items: center; }
+      .btn { width: 100%; max-width: 300px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="img/logos/capitan.png" alt="La Morada del Nuevo Tango" />
+    <div class="nav-logo-text">
+      La Morada del Nuevo Tango
+      <strong>Milonga del Bicentenario</strong>
+    </div>
+  </a>
+  <a href="index.html" class="nav-back">← Volver al sitio</a>
+</nav>
+
+<!-- HERO -->
+<div id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="ornament"></div>
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <p class="hero-eyebrow">La Morada del Nuevo Tango presenta</p>
+
+  <h1 class="hero-title">
+    <span class="word1">Milonga</span>
+    <span class="word2">Bicentenario</span>
+    <span class="word3">18 de Abril · 2026</span>
+  </h1>
+
+  <div class="hero-date-box">
+    <div class="date-item">
+      <div class="date-label">Fecha</div>
+      <div class="date-value">18 Abril</div>
+      <div class="date-sub">2026 · Sabado</div>
+    </div>
+    <div class="date-sep"></div>
+    <div class="date-item">
+      <div class="date-label">Hora</div>
+      <div class="date-value">21:00</div>
+      <div class="date-sub">Hasta las 2:00 hs</div>
+    </div>
+    <div class="date-sep"></div>
+    <div class="date-item">
+      <div class="date-label">Lugar</div>
+      <div class="date-value">Avellaneda</div>
+      <div class="date-sub">Colon & Beruti</div>
+    </div>
+    <div class="date-sep"></div>
+    <div class="date-item">
+      <div class="date-label">Capacidad</div>
+      <div class="date-value">200</div>
+      <div class="date-sub">Lugares limitados</div>
+    </div>
+  </div>
+
+  <div class="hero-cta">
+    <a href="#tickets" class="btn btn-gold">Comprar Entrada</a>
+    <a href="#reserva" class="btn btn-magenta">Reservar Mesa</a>
+    <a href="#info" class="btn btn-outline-gold">Ver programa</a>
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="countdown-section">
+  <div class="countdown-label">// Faltan para la milonga</div>
+  <div class="countdown-grid">
+    <div class="countdown-unit">
+      <span class="countdown-num" id="cd-dias">00</span>
+      <div class="countdown-sub">Días</div>
+    </div>
+    <div class="countdown-sep">:</div>
+    <div class="countdown-unit">
+      <span class="countdown-num" id="cd-horas">00</span>
+      <div class="countdown-sub">Horas</div>
+    </div>
+    <div class="countdown-sep">:</div>
+    <div class="countdown-unit">
+      <span class="countdown-num" id="cd-min">00</span>
+      <div class="countdown-sub">Minutos</div>
+    </div>
+    <div class="countdown-sep">:</div>
+    <div class="countdown-unit">
+      <span class="countdown-num" id="cd-seg">00</span>
+      <div class="countdown-sub">Segundos</div>
+    </div>
+  </div>
+</div>
+
+<!-- INFO -->
+<section id="info" class="full-bg">
+  <div class="section-wrap">
+    <p class="section-label">// El evento</p>
+    <h2 class="section-title">Una <span>noche</span> histórica</h2>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div>
+        <p class="info-text">
+          Viví una <strong>noche única</strong> en uno de los espacios más emblemáticos de <span class="gold">la cultura tanguera del sur</span> 💃🕺
+Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luces, sonido de primera, barra y todo lo que necesitás para <span class="gold"></span>disfrutar a pleno de cada abrazo</span>  ✨
+                    La <strong>Milonga del Bicentenario</strong> es una noche de encuentro en el barrio: orquesta en vivo, DJ tanguero, ambiente milonguero y el calor de siempre. Una milonga para bailarines de todos los niveles, con pista amplia y mesas reservables.
+          <br><br>
+          Las entradas anticipadas tienen precio especial. <strong>Los lugares son limitados.</strong>
+        </p>
+      </div>
+
+      <div class="info-details">
+        <div class="detail-row">
+          <div class="detail-icon">🎶</div>
+          <div class="detail-content">
+            <div class="detail-title">Música en vivo</div>
+            <div class="detail-val">EL CACHIVACHE</div>
+            <div class="detail-sub">Tandas de orquesta en vivo y cortinas con TDJ</div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon">🕘</div>
+          <div class="detail-content">
+            <div class="detail-title">Duración</div>
+            <div class="detail-val">21:00 — 02:00 hs</div>
+            <div class="detail-sub">6 horas de milonga</div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon">🍷</div>
+          <div class="detail-content">
+            <div class="detail-title">Servicio de mesa</div>
+            <div class="detail-val">hoster a disposicion</div>
+            <div class="detail-sub">Para mesas VIP y Premium</div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon">👗</div>
+          <div class="detail-content">
+            <div class="detail-title">Dress code</div>
+            <div class="detail-val">Milonguero</div>
+            <div class="detail-sub">nunca nos importo la ropa</div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon">📍</div>
+          <div class="detail-content">
+            <div class="detail-title">Lugar</div>
+            <div class="detail-val">Avellaneda, Buenos Aires</div>
+            <div class="detail-sub">Colon & Beruti</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARTISTAS -->
+<section id="artistas" class="section-wrap">
+  <p class="section-label">// 002 · Quién toca</p>
+  <h2 class="section-title">Artistas <span>de la noche</span></h2>
+  <div class="divider"></div>
+
+  <div class="artistas-grid">
+    <div class="artista-card">
+      <div class="artista-num">// 01</div>
+      <span class="artista-emoji">🎻</span>
+      <div class="artista-nombre">El Cachivache</div>
+      <div class="artista-rol">Música en vivo</div>
+      <p class="artista-desc">Una de las agrupaciones mas miticas del tango xxi, milongueros, punks, viajados por el mundo, farmean aura a lo loco</p>
+    </div>
+    <div class="artista-card">
+      <div class="artista-num">// 02</div>
+      <span class="artista-emoji">🎵</span>
+      <div class="artista-nombre">DJ Malena Abrate Palomares</div>
+      <div class="artista-rol">DJ Tanguera</div>
+      <p class="artista-desc">Cortinas y tandas entre actuaciones. Música de las orquestas mas lindas para bailar.</p>
+    </div>
+    <div class="artista-card">
+      <div class="artista-num">// 03</div>
+      <span class="artista-emoji">🍕</span>
+      <div class="artista-nombre">Buffet y Barra</div>
+      <div class="artista-rol">para todas y todos</div>
+      <p class="artista-desc">Vas a encontrar algo bueno para tomar, y algo rico para comer.</p>
+    </div>
+    <div class="artista-card">
+      <div class="artista-num">// 04</div>
+      <span class="artista-emoji">📻</span>
+      <div class="artista-nombre">El Equipo de La Morada</div>
+      <div class="artista-rol">Conducción de la noche</div>
+      <p class="artista-desc">Los conductores del programa estarán presentes para animar y conducir la velada.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TICKETS -->
+<section id="tickets" class="full-bg" style="background: var(--bg2);">
+  <div class="section-wrap">
+    <div class="tickets-header">
+      <p class="section-label">// 003 · Entradas anticipadas</p>
+      <h2 class="section-title">Elegí tu <span>entrada</span></h2>
+      <div class="divider" style="margin: 0 auto 1rem;"></div>
+      <p style="color: #8888aa; font-size: 1rem;">Precio especial hasta el 17 de mayo.</p>
+    </div>
+
+    <div class="tickets-grid">
+
+      <!-- GENERAL -->
+      <div class="ticket-card">
+        <div class="ticket-inner">
+          <div class="ticket-tipo">// Entrada</div>
+          <div class="ticket-nombre">General</div>
+          <div class="ticket-precio"><span>$</span>5.000</div>
+          <ul class="ticket-perks">
+            <li>Acceso a la milonga</li>
+            <li>Pista de baile libre</li>
+            <li>Música en vivo + DJ</li>
+            <li class="disabled">Mesa reservada</li>
+            <li class="disabled">Servicio de mesa</li>
+            <li class="disabled">Bienvenida con copa</li>
+          </ul>
+          <div class="ticket-sep"></div>
+          <div class="ticket-nota">Lugar en pista libre. Sin mesa fija asignada.</div>
+          <a href="#reserva" class="btn btn-outline-gold" style="width:100%; text-align:center;" onclick="seleccionarTipo('general')">Comprar General</a>
+        </div>
+      </div>
+
+      <!-- VIP -->
+      <div class="ticket-card featured">
+        <div class="ticket-badge">Más elegido</div>
+        <div class="ticket-inner">
+          <div class="ticket-tipo">// Entrada + Mesa</div>
+          <div class="ticket-nombre">VIP</div>
+          <div class="ticket-precio"><span>$</span>10.000</div>
+          <ul class="ticket-perks">
+            <li>Acceso a la milonga</li>
+            <li>Pista de baile libre</li>
+            <li>Música en vivo + DJ</li>
+            <li>Mesa reservada (4 personas)</li>
+            <li>Servicio de mesa incluido</li>
+            <li class="disabled">Bienvenida con copa</li>
+          </ul>
+          <div class="ticket-sep"></div>
+          <div class="ticket-nota">Incluye mesa para 4. Podés reservar individualmente.</div>
+          <a href="#reserva" class="btn btn-gold" style="width:100%; text-align:center;" onclick="seleccionarTipo('vip')">Comprar VIP</a>
+        </div>
+      </div>
+
+      <!-- PREMIUM -->
+      <div class="ticket-card" style="border-color: rgba(229,0,164,0.2);">
+        <div class="ticket-inner">
+          <div class="ticket-tipo" style="color: var(--magenta);">// Edición limitada</div>
+          <div class="ticket-nombre">Premium</div>
+          <div class="ticket-precio" style="color: var(--magenta); text-shadow: 0 0 20px rgba(229,0,164,0.3);"><span>$</span>15.000</div>
+          <ul class="ticket-perks">
+            <li>Acceso a la milonga</li>
+            <li>Pista de baile libre</li>
+            <li>Música en vivo + DJ</li>
+            <li>Mesa premium (zona preferencial)</li>
+            <li>Servicio de mesa completo</li>
+            <li>Bienvenida con copa de Vino</li>
+          </ul>
+          <div class="ticket-sep"></div>
+          <div class="ticket-nota">Solo 5 mesas disponibles. Mesa con máxima visibilidad al escenario.</div>
+          <a href="#reserva" class="btn btn-magenta" style="width:100%; text-align:center;" onclick="seleccionarTipo('premium')">Comprar Premium</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="alert">
+      <strong>Importante:</strong> Las entradas son nominales. El comprobante de pago y DNI son necesarios para el ingreso. Se envía por mail al confirmar la compra.
+    </div>
+  </div>
+</section>
+
+<!-- RESERVA / COMPRA -->
+<section id="reserva" class="section-wrap">
+  <p class="section-label">// 004 · Reserva y compra</p>
+  <h2 class="section-title">Reservá tu <span class="magenta">mesa</span></h2>
+  <div class="divider"></div>
+
+  <div class="reserva-container">
+    <p class="reserva-intro">
+      Completá el formulario para reservar tu mesa y comprar tu entrada anticipada. Recibirás la confirmación y los detalles de pago por mail.
+    </p>
+
+    <!-- PASOS -->
+    <div class="steps" id="steps-indicator">
+      <div class="step active" id="step-ind-1">
+        <div class="step-num">01</div>
+        <div class="step-label">Tus datos</div>
+      </div>
+      <div class="step" id="step-ind-2">
+        <div class="step-num">02</div>
+        <div class="step-label">Tu mesa</div>
+      </div>
+      <div class="step" id="step-ind-3">
+        <div class="step-num">03</div>
+        <div class="step-label">Pago</div>
+      </div>
+      <div class="step" id="step-ind-4">
+        <div class="step-num">04</div>
+        <div class="step-label">Confirmación</div>
+      </div>
+    </div>
+
+    <!-- PASO 1: Datos personales -->
+    <div class="form-step active" id="form-step-1">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input type="text" class="form-input" id="f-nombre" placeholder="Tu nombre" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Apellido</label>
+          <input type="text" class="form-input" id="f-apellido" placeholder="Tu apellido" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="f-email" placeholder="tu@mail.com" />
+        <p class="form-hint">Acá te enviamos la confirmación y el comprobante.</p>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Teléfono (WhatsApp)</label>
+          <input type="tel" class="form-input" id="f-tel" placeholder="+54 11 0000-0000" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo de entrada</label>
+          <select class="form-select" id="f-tipo">
+            <option value="">Elegir...</option>
+            <option value="general">General — $8.000</option>
+            <option value="vip">VIP (con mesa) — $15.000</option>
+            <option value="premium">Premium — $25.000</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Cantidad de personas en tu grupo</label>
+        <select class="form-select" id="f-personas">
+          <option value="1">1 persona</option>
+          <option value="2">2 personas</option>
+          <option value="3">3 personas</option>
+          <option value="4">4 personas</option>
+          <option value="5">5 personas</option>
+          <option value="6">6 personas</option>
+        </select>
+        <p class="form-hint">Las mesas son para 4 personas. Grupos más grandes pueden necesitar 2 mesas.</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Aclaraciones (opcional)</label>
+        <textarea class="form-textarea" id="f-notas" placeholder="Ej: cumpleaños, necesidades especiales, preferencias de ubicación..."></textarea>
+      </div>
+
+      <button class="btn btn-gold" style="width:100%;" onclick="irPaso(2)">Siguiente: Elegir mesa →</button>
+    </div>
+
+    <!-- PASO 2: Mapa de mesas -->
+    <div class="form-step" id="form-step-2">
+      <div class="mesas-section">
+        <div class="mesas-legend">
+          <div class="legend-item"><div class="legend-box libre"></div> Libre</div>
+          <div class="legend-item"><div class="legend-box seleccionada"></div> Seleccionada</div>
+          <div class="legend-item"><div class="legend-box premium"></div> Premium</div>
+          <div class="legend-item"><div class="legend-box ocupada"></div> Ocupada</div>
+        </div>
+
+        <div class="mapa-escenario">🎹 Escenario · Orquesta en Vivo 🎹</div>
+
+        <div class="mesas-grid-map">
+          <!-- Fila frontal Premium -->
+          <div class="mesas-fila">
+            <div class="mesa-btn premium" data-mesa="P1" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)">
+              <div class="mesa-num">P1</div><div class="mesa-cap">4 pers.</div>
+            </div>
+            <div class="mesa-btn premium" data-mesa="P2" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)">
+              <div class="mesa-num">P2</div><div class="mesa-cap">4 pers.</div>
+            </div>
+            <div class="mesa-btn premium ocupada" data-mesa="P3" data-tipo="premium" data-cap="4">
+              <div class="mesa-num">P3</div><div class="mesa-cap">Ocupada</div>
+            </div>
+            <div class="mesa-btn premium" data-mesa="P4" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)">
+              <div class="mesa-num">P4</div><div class="mesa-cap">4 pers.</div>
+            </div>
+            <div class="mesa-btn premium" data-mesa="P5" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)">
+              <div class="mesa-num">P5</div><div class="mesa-cap">4 pers.</div>
+            </div>
+          </div>
+
+          <!-- Pista de baile (no clickeable) -->
+          <div class="mapa-pista">Pista de baile</div>
+
+          <!-- Fila VIP intermedia -->
+          <div class="mesas-fila">
+            <div class="mesa-btn" data-mesa="A1" data-tipo="vip" data-cap="4" onclick="seleccionarMesa(this)">
+              <div class="mesa-num">A1</div><div class="mesa-cap">4 pers.</div>
+            </div>
+            <div class="mesa-btn ocupada" data-mesa="A2" data-tipo="vip" data-cap="4">
+              <div class="mesa-num">A2</div><div class="mesa-cap">Ocupada</div>
+            </div>
+            <div class="mesa-btn" data-mesa="A3" data-tipo="vip" data-cap="4" onclick="seleccionarMesa(this)">
+              <div class="mesa-num">A3</div><div class="mesa-cap">4 pers.</div>
+            </div>
+            <div class="mesa-btn" data-mesa="A4" data-tipo="vip" data-cap="4" onclick="seleccionarMesa(this)">
+              <div class="mesa-num">A4</div><div class="mesa-cap">4 pers.</div>
+            </div>
+            <div class="mesa-btn" data-mesa="A5" data-tipo="vip" data-cap="4" onclick="seleccionarMesa(this)">
+              <div class="mesa-num">A5</div><div class="mesa-cap">4 pers.</div>
+            </div>
+            <div class="mesa-btn ocupada" data-mesa="A6" data-tipo="vip" data-cap="4">
+              <div class="mesa-num">A6</div><div class="mesa-cap">Ocupada</div>
+            </div>
+          </div>
+
+          <!-- Fila VIP posterior -->
+          <div class="mesas-fila">
+            <div class="mesa-btn" data-mesa="B1" data-tipo="vip" data-cap="4" onclick="seleccionarMesa(this)">
+              <div class="mesa-num">B1</div><div class="mesa-cap">4 pers.</div>
+            </div>
+            <div class="mesa-btn" data-mesa="B2" data-tipo="vip" data-cap="4" onclick="seleccionarMesa(this)">
+              <div class="mesa-num">B2</div><div class="mesa-cap">4 pers.</div>
+            </div>
+            <div class="mesa-btn" data-mesa="B3" data-tipo="vip" data-cap="6" onclick="seleccionarMesa(this)">
+              <div class="mesa-num">B3</div><div class="mesa-cap">6 pers.</div>
+            </div>
+            <div class="mesa-btn" data-mesa="B4" data-tipo="vip" data-cap="6" onclick="seleccionarMesa(this)">
+              <div class="mesa-num">B4</div><div class="mesa-cap">6 pers.</div>
+            </div>
+            <div class="mesa-btn ocupada" data-mesa="B5" data-tipo="vip" data-cap="4">
+              <div class="mesa-num">B5</div><div class="mesa-cap">Ocupada</div>
+            </div>
+          </div>
+        </div>
+
+        <p id="mesa-seleccionada-info" style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--gray); font-family: 'Orbitron', sans-serif; font-size: 0.65rem; letter-spacing: 0.2em;">
+          // Seleccioná una mesa del mapa
+        </p>
+
+        <p class="form-hint" style="margin-top: 0.5rem;">Si compraste entrada General, podés saltear este paso.</p>
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <button class="btn btn-outline-gold" style="flex: 1;" onclick="irPaso(1)">← Atrás</button>
+        <button class="btn btn-gold" style="flex: 2;" onclick="irPaso(3)">Siguiente: Pago →</button>
+      </div>
+    </div>
+
+    <!-- PASO 3: Pago -->
+    <div class="form-step" id="form-step-3">
+      <div class="resumen-box">
+        <div class="resumen-title">// Resumen de tu reserva</div>
+        <div class="resumen-row">
+          <span class="resumen-key">Nombre</span>
+          <span class="resumen-val" id="res-nombre">—</span>
+        </div>
+        <div class="resumen-row">
+          <span class="resumen-key">Tipo de entrada</span>
+          <span class="resumen-val" id="res-tipo">—</span>
+        </div>
+        <div class="resumen-row">
+          <span class="resumen-key">Mesa seleccionada</span>
+          <span class="resumen-val" id="res-mesa">Sin mesa asignada</span>
+        </div>
+        <div class="resumen-row">
+          <span class="resumen-key">Personas</span>
+          <span class="resumen-val" id="res-personas">—</span>
+        </div>
+        <div class="resumen-row resumen-total">
+          <span class="resumen-key">Total</span>
+          <span class="resumen-val" id="res-total">—</span>
+        </div>
+      </div>
+
+      <p class="section-label" style="margin-bottom: 1rem;">// Elegí cómo pagás</p>
+
+      <div class="metodos-pago">
+        <button class="metodo-btn" onclick="seleccionarMetodo(this, 'mercadopago')">
+          <div class="metodo-radio"></div>
+          <div class="metodo-icon">💳</div>
+          <div class="metodo-label">
+            MercadoPago
+            <span class="metodo-sublabel">Tarjeta de crédito, débito o saldo MP</span>
+          </div>
+        </button>
+        <button class="metodo-btn" onclick="seleccionarMetodo(this, 'transferencia')">
+          <div class="metodo-radio"></div>
+          <div class="metodo-icon">🏦</div>
+          <div class="metodo-label">
+            Transferencia bancaria
+            <span class="metodo-sublabel">CBU/CVU o alias — te enviamos los datos</span>
+          </div>
+        </button>
+        <button class="metodo-btn" onclick="seleccionarMetodo(this, 'efectivo')">
+          <div class="metodo-radio"></div>
+          <div class="metodo-icon">💵</div>
+          <div class="metodo-label">
+            Efectivo
+            <span class="metodo-sublabel">Pago en persona — reserva por 48 hs</span>
+          </div>
+        </button>
+      </div>
+
+      <div class="alert" id="metodo-info" style="display:none;"></div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button class="btn btn-outline-gold" style="flex: 1;" onclick="irPaso(2)">← Atrás</button>
+        <button class="btn btn-gold" style="flex: 2;" onclick="confirmarReserva()">Confirmar reserva ✓</button>
+      </div>
+    </div>
+
+    <!-- PASO 4: Confirmación -->
+    <div class="form-step" id="form-step-4">
+      <div class="confirmacion">
+        <div class="confirmacion-icon">✨</div>
+        <div class="confirmacion-titulo">¡Reserva enviada!</div>
+        <p class="confirmacion-texto">
+          Tu solicitud de reserva fue registrada. En las próximas <strong style="color: var(--gold-light);">24–48 horas</strong> te contactamos por mail y WhatsApp con los datos de pago y la confirmación final.
+        </p>
+        <div class="codigo-reserva" id="codigo-reserva">MDB-2026-0000</div>
+        <p style="font-size: 0.85rem; color: var(--gray); margin-bottom: 2rem; letter-spacing: 0.1em;">Guardá este código. Te lo vamos a pedir para acreditar tu entrada.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <a href="https://wa.me/+541124092854?text=Hola!%20Hice%20una%20reserva%20para%20la%20Milonga%20del%20Bicentenario" target="_blank" class="btn btn-magenta">Escribinos por WhatsApp</a>
+          <a href="index.html" class="btn btn-outline-gold">Volver al sitio</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- UBICACIÓN -->
+<section id="ubicacion" class="full-bg" style="background: var(--bg2);">
+  <div class="section-wrap">
+    <p class="section-label">// 005 · Dónde es</p>
+    <h2 class="section-title">Cómo <span>llegar</span></h2>
+    <div class="divider"></div>
+    <div class="ubicacion-grid">
+      <div class="info-details">
+        <div class="detail-row">
+          <div class="detail-icon">📍</div>
+          <div class="detail-content">
+            <div class="detail-title">Barrio</div>
+            <div class="detail-val">Avellaneda, Buenos Aires</div>
+            <div class="detail-sub">Colon & Beruti</div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon">🚇</div>
+          <div class="detail-content">
+            <div class="detail-title">Subte / Tren</div>
+            <div class="detail-val">Línea c + Tren Roca + Mil Bondis</div>
+            <div class="detail-sub"> A cuadras de la Estación Dario & Maxi, en la UNDAV</div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon">🚗</div>
+          <div class="detail-content">
+            <div class="detail-title">Auto</div>
+            <div class="detail-val">Bocha de lugar para estacionar</div>
+            <div class="detail-sub">Zona con estacionar disponible</div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon">📧</div>
+          <div class="detail-content">
+            <div class="detail-title">Información</div>
+            <div class="detail-val">La confirmamos por mail</div>
+            <div class="detail-sub">Todos los detalles llegan al email registrado</div>
+          </div>
+        </div>
+      </div>
+      <div class="mapa-placeholder">
+        <div class="mapa-placeholder-icon">🗺️</div>
+        <div style="font-family:'Orbitron',sans-serif; font-size:0.6rem; letter-spacing:0.25em; color:var(--gray);">UBICACIÓN A CONFIRMAR</div>
+        <p style="font-size:0.9rem; text-align:center; max-width:220px; line-height:1.6;">El mapa exacto se publica 7 días antes del evento y se envía por mail a los reservantes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logos">
+    <img src="img/logos/capitan.png" alt="La Morada del Nuevo Tango" />
+    <img src="img/logos/cuarteto.png" alt="Cuarteto Extraordinario" />
+    <img src="img/logos/gauchito.png" alt="Gauchito Gil" />
+  </div>
+  <p class="footer-copy">
+    © 2026 <span>La Morada del Nuevo Tango</span> · Milonga del Bicentenario
+  </p>
+</footer>
+
+<script>
+  // ─── COUNTDOWN ──────────────────────────────────────────────────
+  function updateCountdown() {
+    const target = new Date('2026-04-18T21:00:00-02:00');
+    const now = new Date();
+    const diff = target - now;
+
+    if (diff <= 0) {
+      document.getElementById('cd-dias').textContent = '00';
+      document.getElementById('cd-horas').textContent = '00';
+      document.getElementById('cd-min').textContent = '00';
+      document.getElementById('cd-seg').textContent = '00';
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById('cd-dias').textContent = String(days).padStart(2, '0');
+    document.getElementById('cd-horas').textContent = String(hours).padStart(2, '0');
+    document.getElementById('cd-min').textContent = String(mins).padStart(2, '0');
+    document.getElementById('cd-seg').textContent = String(secs).padStart(2, '0');
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // ─── STEPS ──────────────────────────────────────────────────────
+  let currentStep = 1;
+  let mesaSeleccionada = null;
+  let metodoPago = null;
+
+  const precios = {
+    general: 8000,
+    vip: 15000,
+    premium: 25000
+  };
+
+  const nombresTipo = {
+    general: 'General',
+    vip: 'VIP (con mesa)',
+    premium: 'Premium'
+  };
+
+  function irPaso(paso) {
+    if (paso === 2 && !validarPaso1()) return;
+    if (paso === 3) actualizarResumen();
+
+    document.getElementById('form-step-' + currentStep).classList.remove('active');
+    document.getElementById('step-ind-' + currentStep).classList.remove('active');
+    if (currentStep < paso) document.getElementById('step-ind-' + currentStep).classList.add('done');
+
+    currentStep = paso;
+    document.getElementById('form-step-' + paso).classList.add('active');
+    document.getElementById('step-ind-' + paso).classList.add('active');
+
+    document.getElementById('reserva').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function validarPaso1() {
+    const nombre = document.getElementById('f-nombre').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    const tipo = document.getElementById('f-tipo').value;
+
+    if (!nombre) { alert('Por favor ingresá tu nombre.'); return false; }
+    if (!email || !email.includes('@')) { alert('Por favor ingresá un email válido.'); return false; }
+    if (!tipo) { alert('Por favor seleccioná el tipo de entrada.'); return false; }
+    return true;
+  }
+
+  function actualizarResumen() {
+    const nombre = document.getElementById('f-nombre').value.trim();
+    const apellido = document.getElementById('f-apellido').value.trim();
+    const tipo = document.getElementById('f-tipo').value;
+    const personas = document.getElementById('f-personas').value;
+
+    document.getElementById('res-nombre').textContent = nombre + ' ' + apellido;
+    document.getElementById('res-tipo').textContent = nombresTipo[tipo] || '—';
+    document.getElementById('res-mesa').textContent = mesaSeleccionada ? 'Mesa ' + mesaSeleccionada : 'Sin mesa asignada';
+    document.getElementById('res-personas').textContent = personas + ' persona(s)';
+
+    const precio = precios[tipo] || 0;
+    document.getElementById('res-total').textContent = '$' + precio.toLocaleString('es-AR');
+  }
+
+  function seleccionarTipo(tipo) {
+    const select = document.getElementById('f-tipo');
+    select.value = tipo;
+    setTimeout(() => {
+      document.getElementById('reserva').scrollIntoView({ behavior: 'smooth' });
+    }, 300);
+  }
+
+  // ─── MESAS ──────────────────────────────────────────────────────
+  function seleccionarMesa(btn) {
+    if (btn.classList.contains('ocupada')) return;
+
+    // Deseleccionar anterior
+    document.querySelectorAll('.mesa-btn.seleccionada').forEach(b => b.classList.remove('seleccionada'));
+
+    btn.classList.add('seleccionada');
+    mesaSeleccionada = btn.dataset.mesa;
+    const tipo = btn.dataset.tipo;
+    const cap = btn.dataset.cap;
+
+    const info = document.getElementById('mesa-seleccionada-info');
+    info.style.color = tipo === 'premium' ? 'var(--magenta)' : 'var(--gold)';
+    info.textContent = '// Mesa ' + mesaSeleccionada + ' seleccionada · ' + cap + ' personas · ' + (tipo === 'premium' ? 'Premium' : 'VIP');
+
+    // Si eligieron una mesa premium, sugerir tipo premium
+    if (tipo === 'premium' && document.getElementById('f-tipo').value !== 'premium') {
+      const select = document.getElementById('f-tipo');
+      select.value = 'premium';
+    }
+  }
+
+  // ─── MÉTODOS PAGO ───────────────────────────────────────────────
+  const infoMetodos = {
+    mercadopago: '💳 Te redirigiremos al link de pago de <strong>MercadoPago</strong> una vez que confirmemos la disponibilidad de tu mesa. Aceptamos todas las tarjetas.',
+    transferencia: '🏦 Una vez confirmada la reserva, te enviamos por WhatsApp y mail el <strong>CBU/CVU y alias</strong> para realizar la transferencia en las próximas 48 hs.',
+    efectivo: '💵 La reserva se mantiene por <strong>48 horas</strong>. Coordinamos el pago en persona. Ideal si estás cerca de Avellaneda.'
+  };
+
+  function seleccionarMetodo(btn, metodo) {
+    document.querySelectorAll('.metodo-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    metodoPago = metodo;
+
+    const infoDiv = document.getElementById('metodo-info');
+    infoDiv.style.display = 'block';
+    infoDiv.innerHTML = infoMetodos[metodo];
+  }
+
+  // ─── CONFIRMAR RESERVA ──────────────────────────────────────────
+  function confirmarReserva() {
+    if (!metodoPago) {
+      alert('Por favor seleccioná un método de pago.');
+      return;
+    }
+
+    // Generar código de reserva
+    const codigo = 'MDB-2026-' + Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('codigo-reserva').textContent = codigo;
+
+    // Ir al paso de confirmación
+    document.getElementById('step-ind-3').classList.add('done');
+    irPaso(4);
+
+    // Acá en producción iría la llamada a tu backend / WhatsApp / email
+    console.log('Reserva confirmada:', {
+      nombre: document.getElementById('f-nombre').value,
+      apellido: document.getElementById('f-apellido').value,
+      email: document.getElementById('f-email').value,
+      tel: document.getElementById('f-tel').value,
+      tipo: document.getElementById('f-tipo').value,
+      mesa: mesaSeleccionada,
+      personas: document.getElementById('f-personas').value,
+      notas: document.getElementById('f-notas').value,
+      metodoPago,
+      codigo
+    });
+  }
+</script>
+
+</body>
+</html>
