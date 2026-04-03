@@ -852,6 +852,50 @@
       color: rgba(212,160,23,0.4);
     }
 
+    /* ─── MAPA SALÓN ─── */
+    .salon-mapa {
+      display: grid;
+      grid-template-columns: 68px 1fr 68px;
+      grid-template-rows: auto 1fr auto;
+      gap: 4px;
+      align-items: stretch;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .salon-frente { grid-column: 1/4; grid-row: 1; padding-bottom: 4px; }
+    .salon-izq    { grid-column: 1;   grid-row: 2; display: flex; flex-direction: column; gap: 4px; justify-content: center; }
+    .salon-centro { grid-column: 2;   grid-row: 2; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
+    .salon-der    { grid-column: 3;   grid-row: 2; display: flex; flex-direction: column; gap: 4px; justify-content: center; }
+    .salon-fondo  { grid-column: 1/4; grid-row: 3; padding-top: 4px; }
+
+    .salon-fila-h { display: flex; gap: 4px; justify-content: center; }
+    .salon-label  {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.45rem;
+      letter-spacing: 0.2em;
+      color: var(--gray);
+      text-align: center;
+      margin-bottom: 3px;
+    }
+
+    .pista-central {
+      border: 2px dashed rgba(212,160,23,0.18);
+      border-radius: 50%;
+      width: 140px; height: 140px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.5rem; letter-spacing: 0.15em;
+      color: rgba(212,160,23,0.3);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 560px) {
+      .salon-mapa { grid-template-columns: 56px 1fr 56px; }
+      .pista-central { width: 100px; height: 100px; font-size: 0.4rem; }
+    }
+
     .mesas-grid-map {
       display: grid;
       gap: 0.8rem;
@@ -865,7 +909,7 @@
     }
 
     .mesa-btn {
-      width: 70px; height: 70px;
+      width: 58px; height: 58px;
       border: 1px solid rgba(212,160,23,0.3);
       background: rgba(212,160,23,0.05);
       cursor: pointer;
@@ -1207,8 +1251,8 @@
     <div class="date-sep"></div>
     <div class="date-item">
       <div class="date-label">Capacidad</div>
-      <div class="date-value">200</div>
-      <div class="date-sub">Lugares limitados</div>
+      <div class="date-value">+200</div>
+      <div class="date-sub">Personas · lugares limitados</div>
     </div>
   </div>
 
@@ -1284,7 +1328,7 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
           <div class="detail-content">
             <div class="detail-title">Servicio de mesa</div>
             <div class="detail-val">hoster a disposicion</div>
-            <div class="detail-sub">Para mesas VIP y Premium</div>
+            <div class="detail-sub">Premium: incluido · General: sin servicio de mesa</div>
           </div>
         </div>
         <div class="detail-row">
@@ -1370,32 +1414,11 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
             <li>Música en vivo + DJ</li>
             <li class="disabled">Mesa reservada</li>
             <li class="disabled">Servicio de mesa</li>
-            <li class="disabled">Bienvenida con copa</li>
+            <li class="disabled">Vino de cortesía</li>
           </ul>
           <div class="ticket-sep"></div>
           <div class="ticket-nota">Lugar en pista libre. Sin mesa fija asignada.</div>
           <a href="#reserva" class="btn btn-outline-gold" style="width:100%; text-align:center;" onclick="seleccionarTipo('general')">Comprar General</a>
-        </div>
-      </div>
-
-      <!-- VIP -->
-      <div class="ticket-card featured">
-        <div class="ticket-badge">Más elegido</div>
-        <div class="ticket-inner">
-          <div class="ticket-tipo">// Entrada + Mesa</div>
-          <div class="ticket-nombre">VIP</div>
-          <div class="ticket-precio"><span>$</span>10.000</div>
-          <ul class="ticket-perks">
-            <li>Acceso a la milonga</li>
-            <li>Pista de baile libre</li>
-            <li>Música en vivo + DJ</li>
-            <li>Mesa reservada (4 personas)</li>
-            <li>Servicio de mesa incluido</li>
-            <li class="disabled">Bienvenida con copa</li>
-          </ul>
-          <div class="ticket-sep"></div>
-          <div class="ticket-nota">Incluye mesa para 4. Podés reservar individualmente.</div>
-          <a href="#reserva" class="btn btn-gold" style="width:100%; text-align:center;" onclick="seleccionarTipo('vip')">Comprar VIP</a>
         </div>
       </div>
 
@@ -1411,10 +1434,10 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
             <li>Música en vivo + DJ</li>
             <li>Mesa premium (zona preferencial)</li>
             <li>Servicio de mesa completo</li>
-            <li>Bienvenida con copa de Vino</li>
+            <li>🍷 Vino de cortesía en mesa</li>
           </ul>
           <div class="ticket-sep"></div>
-          <div class="ticket-nota">Solo 5 mesas disponibles. Mesa con máxima visibilidad al escenario.</div>
+          <div class="ticket-nota">5 mesas Premium, frente al escenario. Incluye vino de cortesía en mesa.</div>
           <a href="#reserva" class="btn btn-magenta" style="width:100%; text-align:center;" onclick="seleccionarTipo('premium')">Comprar Premium</a>
         </div>
       </div>
@@ -1430,7 +1453,7 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
 <!-- RESERVA / COMPRA -->
 <section id="reserva" class="section-wrap">
   <p class="section-label">// 004 · Reserva y compra</p>
-  <h2 class="section-title">Reservá tu <span class="magenta">mesa</span></h2>
+  <h2 class="section-title">Reservá tu <span class="magenta">lugar</span></h2>
   <div class="divider"></div>
 
   <div class="reserva-container">
@@ -1486,9 +1509,8 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
           <label class="form-label">Tipo de entrada</label>
           <select class="form-select" id="f-tipo">
             <option value="">Elegir...</option>
-            <option value="general">General — $8.000</option>
-            <option value="vip">VIP (con mesa) — $15.000</option>
-            <option value="premium">Premium — $25.000</option>
+            <option value="general">General — $5.000</option>
+            <option value="premium">Premium — $15.000</option>
           </select>
         </div>
       </div>
@@ -1511,96 +1533,86 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
         <textarea class="form-textarea" id="f-notas" placeholder="Ej: cumpleaños, necesidades especiales, preferencias de ubicación..."></textarea>
       </div>
 
-      <button class="btn btn-gold" style="width:100%;" onclick="irPaso(2)">Siguiente: Elegir mesa →</button>
+      <button class="btn btn-gold" style="width:100%;" onclick="siguientePaso1()">Siguiente →</button>
     </div>
 
-    <!-- PASO 2: Mapa de mesas -->
+    <!-- PASO 2: Mesa / Preferencia -->
     <div class="form-step" id="form-step-2">
-      <div class="mesas-section">
-        <div class="mesas-legend">
-          <div class="legend-item"><div class="legend-box libre"></div> Libre</div>
-          <div class="legend-item"><div class="legend-box seleccionada"></div> Seleccionada</div>
-          <div class="legend-item"><div class="legend-box premium"></div> Premium</div>
-          <div class="legend-item"><div class="legend-box ocupada"></div> Ocupada</div>
-        </div>
 
+      <!-- GENERAL: aviso de preferencia (sin mapa interactivo) -->
+      <div id="paso2-general" style="display:none;">
+        <div class="alert" style="border-left-color:var(--gold); background:rgba(212,160,23,0.05); margin-bottom:1.5rem;">
+          <strong style="color:var(--gold-light);">Entrada General — $5.000</strong><br>
+          Las mesas se asignan en el salón el día del evento. Si tenés preferencia de ubicación avisanos y lo tenemos en cuenta.
+        </div>
+        <div class="form-group">
+          <label class="form-label">Preferencia de ubicación (opcional)</label>
+          <textarea class="form-textarea" id="f-pref-mesa" placeholder="Ej: cerca del escenario, lateral derecho, con el grupo de fulano..." style="min-height:80px;"></textarea>
+          <p class="form-hint">No es una reserva confirmada de mesa específica.</p>
+        </div>
+        <!-- Mapa de referencia — no interactivo -->
+        <p class="section-label" style="margin-bottom:0.8rem;">// Referencia del salón</p>
         <div class="mapa-escenario">🎹 Escenario · Orquesta en Vivo 🎹</div>
-
-        <div class="mesas-grid-map">
-          <!-- Fila frontal Premium -->
-          <div class="mesas-fila">
-            <div class="mesa-btn premium" data-mesa="P1" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)">
-              <div class="mesa-num">P1</div><div class="mesa-cap">4 pers.</div>
-            </div>
-            <div class="mesa-btn premium" data-mesa="P2" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)">
-              <div class="mesa-num">P2</div><div class="mesa-cap">4 pers.</div>
-            </div>
-            <div class="mesa-btn premium ocupada" data-mesa="P3" data-tipo="premium" data-cap="4">
-              <div class="mesa-num">P3</div><div class="mesa-cap">Ocupada</div>
-            </div>
-            <div class="mesa-btn premium" data-mesa="P4" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)">
-              <div class="mesa-num">P4</div><div class="mesa-cap">4 pers.</div>
-            </div>
-            <div class="mesa-btn premium" data-mesa="P5" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)">
-              <div class="mesa-num">P5</div><div class="mesa-cap">4 pers.</div>
-            </div>
+        <div class="salon-mapa" style="opacity:0.5; pointer-events:none;">
+          <div class="salon-frente">
+            <div class="salon-label">Premium (reservado)</div>
+            <div class="salon-fila-h"><div class="mesa-btn premium" data-mesa="P1" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)"><div class="mesa-num">P1</div><div class="mesa-cap">4p</div></div><div class="mesa-btn premium" data-mesa="P2" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)"><div class="mesa-num">P2</div><div class="mesa-cap">4p</div></div><div class="mesa-btn premium" data-mesa="P3" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)"><div class="mesa-num">P3</div><div class="mesa-cap">4p</div></div><div class="mesa-btn premium" data-mesa="P4" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)"><div class="mesa-num">P4</div><div class="mesa-cap">4p</div></div><div class="mesa-btn premium" data-mesa="P5" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)"><div class="mesa-num">P5</div><div class="mesa-cap">4p</div></div></div>
           </div>
-
-          <!-- Pista de baile (no clickeable) -->
-          <div class="mapa-pista">Pista de baile</div>
-
-          <!-- Fila VIP intermedia -->
-          <div class="mesas-fila">
-            <div class="mesa-btn" data-mesa="A1" data-tipo="vip" data-cap="4" onclick="seleccionarMesa(this)">
-              <div class="mesa-num">A1</div><div class="mesa-cap">4 pers.</div>
-            </div>
-            <div class="mesa-btn ocupada" data-mesa="A2" data-tipo="vip" data-cap="4">
-              <div class="mesa-num">A2</div><div class="mesa-cap">Ocupada</div>
-            </div>
-            <div class="mesa-btn" data-mesa="A3" data-tipo="vip" data-cap="4" onclick="seleccionarMesa(this)">
-              <div class="mesa-num">A3</div><div class="mesa-cap">4 pers.</div>
-            </div>
-            <div class="mesa-btn" data-mesa="A4" data-tipo="vip" data-cap="4" onclick="seleccionarMesa(this)">
-              <div class="mesa-num">A4</div><div class="mesa-cap">4 pers.</div>
-            </div>
-            <div class="mesa-btn" data-mesa="A5" data-tipo="vip" data-cap="4" onclick="seleccionarMesa(this)">
-              <div class="mesa-num">A5</div><div class="mesa-cap">4 pers.</div>
-            </div>
-            <div class="mesa-btn ocupada" data-mesa="A6" data-tipo="vip" data-cap="4">
-              <div class="mesa-num">A6</div><div class="mesa-cap">Ocupada</div>
-            </div>
+          <div class="salon-izq">
+            <div class="salon-label">General</div>
+            <div class="mesa-btn" data-mesa="I1" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">I1</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="I2" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">I2</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="I3" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">I3</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="I4" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">I4</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="I5" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">I5</div><div class="mesa-cap">4p</div></div>
           </div>
-
-          <!-- Fila VIP posterior -->
-          <div class="mesas-fila">
-            <div class="mesa-btn" data-mesa="B1" data-tipo="vip" data-cap="4" onclick="seleccionarMesa(this)">
-              <div class="mesa-num">B1</div><div class="mesa-cap">4 pers.</div>
-            </div>
-            <div class="mesa-btn" data-mesa="B2" data-tipo="vip" data-cap="4" onclick="seleccionarMesa(this)">
-              <div class="mesa-num">B2</div><div class="mesa-cap">4 pers.</div>
-            </div>
-            <div class="mesa-btn" data-mesa="B3" data-tipo="vip" data-cap="6" onclick="seleccionarMesa(this)">
-              <div class="mesa-num">B3</div><div class="mesa-cap">6 pers.</div>
-            </div>
-            <div class="mesa-btn" data-mesa="B4" data-tipo="vip" data-cap="6" onclick="seleccionarMesa(this)">
-              <div class="mesa-num">B4</div><div class="mesa-cap">6 pers.</div>
-            </div>
-            <div class="mesa-btn ocupada" data-mesa="B5" data-tipo="vip" data-cap="4">
-              <div class="mesa-num">B5</div><div class="mesa-cap">Ocupada</div>
-            </div>
+          <div class="salon-centro"><div class="pista-central">PISTA<br>DE<br>BAILE</div></div>
+          <div class="salon-der">
+            <div class="salon-label">General</div>
+            <div class="mesa-btn" data-mesa="D1" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">D1</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="D2" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">D2</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="D3" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">D3</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="D4" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">D4</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="D5" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">D5</div><div class="mesa-cap">4p</div></div>
+          </div>
+          <div class="salon-fondo">
+            <div class="salon-label" style="margin-top:4px;">General · Fondo</div>
+            <div class="salon-fila-h"><div class="mesa-btn" data-mesa="F1" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F1</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F2" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F2</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F3" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F3</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F4" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F4</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F5" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F5</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F6" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F6</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F7" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F7</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F8" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F8</div><div class="mesa-cap">4p</div></div></div>
           </div>
         </div>
-
-        <p id="mesa-seleccionada-info" style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--gray); font-family: 'Orbitron', sans-serif; font-size: 0.65rem; letter-spacing: 0.2em;">
-          // Seleccioná una mesa del mapa
-        </p>
-
-        <p class="form-hint" style="margin-top: 0.5rem;">Si compraste entrada General, podés saltear este paso.</p>
       </div>
 
-      <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-        <button class="btn btn-outline-gold" style="flex: 1;" onclick="irPaso(1)">← Atrás</button>
-        <button class="btn btn-gold" style="flex: 2;" onclick="irPaso(3)">Siguiente: Pago →</button>
+      <!-- PREMIUM: mapa interactivo solo P1-P5 -->
+      <div id="paso2-premium" style="display:none;">
+        <div class="alert" style="border-left-color:var(--magenta); background:rgba(229,0,164,0.05); margin-bottom:1.5rem;">
+          <strong style="color:var(--magenta);">Entrada Premium — $15.000</strong><br>
+          Elegí tu mesa frente al escenario. Solo 5 disponibles — incluye 🍷 vino de cortesía.
+        </div>
+        <div class="mesas-legend" style="margin-bottom:1rem;">
+          <div class="legend-item"><div class="legend-box premium"></div> Disponible</div>
+          <div class="legend-item"><div class="legend-box seleccionada"></div> Tu elección</div>
+          <div class="legend-item"><div class="legend-box ocupada"></div> Ocupada</div>
+        </div>
+        <div class="mapa-escenario">🎹 Escenario · Orquesta en Vivo 🎹</div>
+        <div class="salon-mapa">
+          <div class="salon-frente">
+            <div class="salon-label">// PREMIUM · Elegí tu mesa</div>
+            <div class="salon-fila-h"><div class="mesa-btn premium" data-mesa="P1" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)"><div class="mesa-num">P1</div><div class="mesa-cap">4p</div></div><div class="mesa-btn premium" data-mesa="P2" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)"><div class="mesa-num">P2</div><div class="mesa-cap">4p</div></div><div class="mesa-btn premium" data-mesa="P3" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)"><div class="mesa-num">P3</div><div class="mesa-cap">4p</div></div><div class="mesa-btn premium" data-mesa="P4" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)"><div class="mesa-num">P4</div><div class="mesa-cap">4p</div></div><div class="mesa-btn premium" data-mesa="P5" data-tipo="premium" data-cap="4" onclick="seleccionarMesa(this)"><div class="mesa-num">P5</div><div class="mesa-cap">4p</div></div></div>
+          </div>
+          <div class="salon-izq" style="opacity:0.25; pointer-events:none;">
+            <div class="salon-label">General</div>
+            <div class="mesa-btn" data-mesa="I1" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">I1</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="I2" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">I2</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="I3" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">I3</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="I4" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">I4</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="I5" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">I5</div><div class="mesa-cap">4p</div></div>
+          </div>
+          <div class="salon-centro"><div class="pista-central">PISTA<br>DE<br>BAILE</div></div>
+          <div class="salon-der" style="opacity:0.25; pointer-events:none;">
+            <div class="salon-label">General</div>
+            <div class="mesa-btn" data-mesa="D1" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">D1</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="D2" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">D2</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="D3" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">D3</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="D4" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">D4</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="D5" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">D5</div><div class="mesa-cap">4p</div></div>
+          </div>
+          <div class="salon-fondo" style="opacity:0.25; pointer-events:none;">
+            <div class="salon-label" style="margin-top:4px;">General · Fondo</div>
+            <div class="salon-fila-h"><div class="mesa-btn" data-mesa="F1" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F1</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F2" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F2</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F3" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F3</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F4" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F4</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F5" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F5</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F6" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F6</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F7" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F7</div><div class="mesa-cap">4p</div></div><div class="mesa-btn" data-mesa="F8" data-tipo="general" data-cap="4"  style="cursor:default; opacity:0.6;"><div class="mesa-num">F8</div><div class="mesa-cap">4p</div></div></div>
+          </div>
+        </div>
+        <p id="mesa-seleccionada-info" style="margin-top:1rem; font-family:'Orbitron',sans-serif; font-size:0.65rem; letter-spacing:0.2em; color:var(--gray);">
+          // Tocá una mesa Premium para seleccionarla
+        </p>
+      </div>
+
+      <div style="display:flex; gap:1rem; margin-top:1.5rem;">
+        <button class="btn btn-outline-gold" style="flex:1;" onclick="irPaso(1)">← Atrás</button>
+        <button class="btn btn-gold" style="flex:2;" onclick="irPaso(3)">Siguiente: Pago →</button>
       </div>
     </div>
 
@@ -1673,13 +1685,20 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
         <div class="confirmacion-icon">✨</div>
         <div class="confirmacion-titulo">¡Reserva enviada!</div>
         <p class="confirmacion-texto">
-          Tu solicitud de reserva fue registrada. En las próximas <strong style="color: var(--gold-light);">24–48 horas</strong> te contactamos por mail y WhatsApp con los datos de pago y la confirmación final.
+          Tu lugar está reservado. En las próximas <strong style="color: var(--gold-light);">24–48 horas</strong> te contactamos para confirmar el pago.
         </p>
-        <div class="codigo-reserva" id="codigo-reserva">MDB-2026-0000</div>
-        <p style="font-size: 0.85rem; color: var(--gray); margin-bottom: 2rem; letter-spacing: 0.1em;">Guardá este código. Te lo vamos a pedir para acreditar tu entrada.</p>
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-          <a href="https://wa.me/+541124092854?text=Hola!%20Hice%20una%20reserva%20para%20la%20Milonga%20del%20Bicentenario" target="_blank" class="btn btn-magenta">Escribinos por WhatsApp</a>
-          <a href="index.html" class="btn btn-outline-gold">Volver al sitio</a>
+        <div class="codigo-reserva" id="codigo-reserva">MDB-0000</div>
+        <p style="font-size: 0.85rem; color: var(--gray); margin-bottom: 1.5rem; letter-spacing: 0.1em;">
+          Guardá este código — te lo pedimos en la puerta.
+        </p>
+        <!-- Botón MP: aparece solo si eligieron MercadoPago -->
+        <a id="btn-mp" href="#" target="_blank" class="btn btn-gold"
+           style="display:none; margin-bottom:1rem; min-width:260px; text-align:center;">
+          💳 Pagar con MercadoPago →
+        </a>
+        <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:0.5rem;">
+          <a id="btn-wa" href="#" target="_blank" class="btn btn-magenta">📱 Escribinos por WhatsApp</a>
+          <a href="index.html" class="btn btn-outline-gold">← Volver al sitio</a>
         </div>
       </div>
     </div>
@@ -1784,29 +1803,35 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
   let metodoPago = null;
 
   const precios = {
-    general: 8000,
-    vip: 15000,
-    premium: 25000
+    general: 5000,
+    premium: 15000
   };
 
   const nombresTipo = {
     general: 'General',
-    vip: 'VIP (con mesa)',
     premium: 'Premium'
   };
 
-  function irPaso(paso) {
-    if (paso === 2 && !validarPaso1()) return;
-    if (paso === 3) actualizarResumen();
+  function siguientePaso1() {
+    if (!validarPaso1()) return;
+    const tipo = document.getElementById('f-tipo').value;
+    document.getElementById('paso2-general').style.display = tipo === 'premium' ? 'none' : 'block';
+    document.getElementById('paso2-premium').style.display = tipo === 'premium' ? 'block' : 'none';
+    if (tipo !== 'premium') {
+      mesaSeleccionada = null;
+      document.querySelectorAll('.mesa-btn.seleccionada').forEach(b => b.classList.remove('seleccionada'));
+    }
+    irPaso(2);
+  }
 
+  function irPaso(paso) {
+    if (paso === 3) actualizarResumen();
     document.getElementById('form-step-' + currentStep).classList.remove('active');
     document.getElementById('step-ind-' + currentStep).classList.remove('active');
     if (currentStep < paso) document.getElementById('step-ind-' + currentStep).classList.add('done');
-
     currentStep = paso;
     document.getElementById('form-step-' + paso).classList.add('active');
     document.getElementById('step-ind-' + paso).classList.add('active');
-
     document.getElementById('reserva').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -1829,7 +1854,12 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
 
     document.getElementById('res-nombre').textContent = nombre + ' ' + apellido;
     document.getElementById('res-tipo').textContent = nombresTipo[tipo] || '—';
-    document.getElementById('res-mesa').textContent = mesaSeleccionada ? 'Mesa ' + mesaSeleccionada : 'Sin mesa asignada';
+    const prefEl = document.getElementById('f-pref-mesa');
+    const pref = prefEl ? prefEl.value.trim() : '';
+    const mesaInfo = mesaSeleccionada
+      ? 'Mesa ' + mesaSeleccionada + ' (Premium)'
+      : (pref ? 'Preferencia: ' + pref.slice(0,35) + (pref.length>35?'...':'') : 'Sin preferencia indicada');
+    document.getElementById('res-mesa').textContent = mesaInfo;
     document.getElementById('res-personas').textContent = personas + ' persona(s)';
 
     const precio = precios[tipo] || 0;
@@ -1846,24 +1876,14 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
 
   // ─── MESAS ──────────────────────────────────────────────────────
   function seleccionarMesa(btn) {
-    if (btn.classList.contains('ocupada')) return;
-
-    // Deseleccionar anterior
+    if (btn.classList.contains('ocupada') || btn.dataset.tipo !== 'premium') return;
     document.querySelectorAll('.mesa-btn.seleccionada').forEach(b => b.classList.remove('seleccionada'));
-
     btn.classList.add('seleccionada');
     mesaSeleccionada = btn.dataset.mesa;
-    const tipo = btn.dataset.tipo;
-    const cap = btn.dataset.cap;
-
     const info = document.getElementById('mesa-seleccionada-info');
-    info.style.color = tipo === 'premium' ? 'var(--magenta)' : 'var(--gold)';
-    info.textContent = '// Mesa ' + mesaSeleccionada + ' seleccionada · ' + cap + ' personas · ' + (tipo === 'premium' ? 'Premium' : 'VIP');
-
-    // Si eligieron una mesa premium, sugerir tipo premium
-    if (tipo === 'premium' && document.getElementById('f-tipo').value !== 'premium') {
-      const select = document.getElementById('f-tipo');
-      select.value = 'premium';
+    if (info) {
+      info.style.color = 'var(--magenta)';
+      info.textContent = '// Mesa ' + mesaSeleccionada + ' seleccionada · Premium · frente al escenario ✓';
     }
   }
 
@@ -1884,34 +1904,90 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
     infoDiv.innerHTML = infoMetodos[metodo];
   }
 
-  // ─── CONFIRMAR RESERVA ──────────────────────────────────────────
-  function confirmarReserva() {
+  // ══════════════════════════════════════════════════════════════
+  //  GOOGLE APPS SCRIPT WEBHOOK
+  //  Reemplazá la URL con la de tu deploy (ver instrucciones)
+  // ══════════════════════════════════════════════════════════════
+  const APPS_SCRIPT_URL = 'https://script.google.com/u/0/home/projects/174lej-LxX2DMOKftMmUfMH93-WysLmJfhDOTTcoqkkeE76_-wFuohbxo/edit';
+
+  const MP_URL = 'https://link.mercadopago.com.ar/bicentenariomilonga';
+
+  async function confirmarReserva() {
     if (!metodoPago) {
       alert('Por favor seleccioná un método de pago.');
       return;
     }
 
-    // Generar código de reserva
-    const codigo = 'MDB-2026-' + Math.floor(1000 + Math.random() * 9000);
-    document.getElementById('codigo-reserva').textContent = codigo;
+    const codigo  = 'MDB-' + Math.floor(1000 + Math.random() * 9000);
+    const nombre  = document.getElementById('f-nombre').value.trim();
+    const apellido= document.getElementById('f-apellido').value.trim();
+    const email   = document.getElementById('f-email').value.trim();
+    const tel     = document.getElementById('f-tel').value.trim();
+    const tipo    = document.getElementById('f-tipo').value;
+    const personas= document.getElementById('f-personas').value;
+    const notas   = document.getElementById('f-notas').value.trim();
+    const prefEl  = document.getElementById('f-pref-mesa');
+    const pref    = prefEl ? prefEl.value.trim() : '';
 
-    // Ir al paso de confirmación
+    const data = {
+      codigo,
+      nombre: nombre + ' ' + apellido,
+      email,
+      tel,
+      tipo,
+      mesa: mesaSeleccionada || 'sin-mesa',
+      prefMesa: pref,
+      personas,
+      notas,
+      metodoPago,
+      fecha: new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
+    };
+
+    // Mostrar código y avanzar inmediatamente (no bloqueamos al usuario)
+    document.getElementById('codigo-reserva').textContent = codigo;
     document.getElementById('step-ind-3').classList.add('done');
     irPaso(4);
 
-    // Acá en producción iría la llamada a tu backend / WhatsApp / email
-    console.log('Reserva confirmada:', {
-      nombre: document.getElementById('f-nombre').value,
-      apellido: document.getElementById('f-apellido').value,
-      email: document.getElementById('f-email').value,
-      tel: document.getElementById('f-tel').value,
-      tipo: document.getElementById('f-tipo').value,
-      mesa: mesaSeleccionada,
-      personas: document.getElementById('f-personas').value,
-      notas: document.getElementById('f-notas').value,
-      metodoPago,
-      codigo
-    });
+    // Armar link de WhatsApp con todos los datos
+    const msgWA = encodeURIComponent(
+      '¡Hola! Acabo de reservar para la Milonga del Bicentenario 🎶
+' +
+      '📋 Código: ' + codigo + '
+' +
+      '👤 ' + nombre + ' ' + apellido + '
+' +
+      '🎫 ' + (tipo === 'premium' ? 'Premium' : 'General') +
+      (mesaSeleccionada ? ' · Mesa ' + mesaSeleccionada : '') + '
+' +
+      '👥 ' + personas + ' persona(s)
+' +
+      '💳 Pago: ' + metodoPago
+    );
+    document.getElementById('btn-wa').href = 'https://wa.me/+541124092854?text=' + msgWA;
+
+    // Si eligió MercadoPago → mostrar botón y abrir
+    if (metodoPago === 'mercadopago') {
+      const btnMP = document.getElementById('btn-mp');
+      if (btnMP) {
+        btnMP.style.display = 'inline-block';
+        btnMP.href = MP_URL;
+        setTimeout(() => window.open(MP_URL, '_blank'), 900);
+      }
+    }
+
+    // Enviar datos al Google Apps Script (en segundo plano)
+    if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'TU_APPS_SCRIPT_URL_AQUI') {
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      } catch (e) {
+        console.warn('No se pudo enviar al webhook:', e);
+      }
+    }
   }
 </script>
 
