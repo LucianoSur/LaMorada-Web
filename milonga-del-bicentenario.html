@@ -1240,7 +1240,7 @@
     <div class="date-item">
       <div class="date-label">Hora</div>
       <div class="date-value">21:00</div>
-      <div class="date-sub">Hasta las 2:00 hs</div>
+      <div class="date-sub">Clase 21hs · hasta las 2am</div>
     </div>
     <div class="date-sep"></div>
     <div class="date-item">
@@ -1260,6 +1260,14 @@
     <a href="#tickets" class="btn btn-gold">Comprar Entrada</a>
     <a href="#reserva" class="btn btn-magenta">Reservar Mesa</a>
     <a href="#info" class="btn btn-outline-gold">Ver programa</a>
+  </div>
+
+  <!-- Flyer flotante -->
+  <div style="margin-top:2.5rem; position:relative; z-index:1;">
+    <img src="milonga_del_bicentenario.jpg" alt="Flyer Milonga del Bicentenario"
+      style="width:220px; max-width:60vw; border:2px solid rgba(212,160,23,0.35);
+             box-shadow: 0 0 40px rgba(212,160,23,0.15), 0 0 80px rgba(229,0,164,0.08);
+             animation: float 4s ease-in-out infinite;" />
   </div>
 </div>
 
@@ -1319,8 +1327,8 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
           <div class="detail-icon">🕘</div>
           <div class="detail-content">
             <div class="detail-title">Duración</div>
-            <div class="detail-val">21:00 — 02:00 hs</div>
-            <div class="detail-sub">6 horas de milonga</div>
+            <div class="detail-val">Clase 21hs · Milonga hasta 2am</div>
+            <div class="detail-sub">Clase incluida en la entrada · después la milonga</div>
           </div>
         </div>
         <div class="detail-row">
@@ -1358,13 +1366,45 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
   <h2 class="section-title">Artistas <span>de la noche</span></h2>
   <div class="divider"></div>
 
+  <!-- Flyer destacado + cards -->
+  <div style="display:grid; grid-template-columns: auto 1fr; gap:3rem; align-items:start; margin-bottom:2.5rem;">
+    <div style="text-align:center;">
+      <img src="milonga_del_bicentenario.jpg" alt="El Cachivache · Milonga del Bicentenario"
+        style="width:280px; max-width:90vw; border:2px solid rgba(229,0,164,0.35);
+               box-shadow: 0 0 40px rgba(229,0,164,0.15);
+               display:block;" />
+      <div style="font-family:'Orbitron',sans-serif; font-size:0.55rem; letter-spacing:0.3em;
+                  color:var(--magenta); margin-top:0.8rem;">// FLYER OFICIAL</div>
+    </div>
+    <div>
+      <div style="font-family:'Orbitron',sans-serif; font-size:0.6rem; letter-spacing:0.3em; color:var(--gold); margin-bottom:0.5rem;">// ARTISTA PRINCIPAL</div>
+      <div style="font-family:'Bebas Neue',sans-serif; font-size:clamp(2.5rem,6vw,4rem); color:var(--white); line-height:1; margin-bottom:0.5rem;">El Cachivache</div>
+      <div style="font-family:'Orbitron',sans-serif; font-size:0.6rem; letter-spacing:0.25em; color:var(--magenta); margin-bottom:1rem;">EN VIVO · AVELLANEDA</div>
+      <p style="font-size:1.1rem; color:#aaaacc; line-height:1.8; margin-bottom:1.5rem;">
+        Una de las agrupaciones más míticas del tango siglo XXI — milongueros, punks, viajados por el mundo. El Cachivache toca en vivo en la Milonga del Bicentenario.
+      </p>
+      <div style="display:flex; flex-direction:column; gap:0.6rem;">
+        <div style="font-size:1rem; color:var(--white);">🎹 <strong>Clase de tango</strong> — 21:00 hs</div>
+        <div style="font-size:1rem; color:var(--white);">💃 <strong>Milonga</strong> — hasta las 2:00 am</div>
+        <div style="font-size:1rem; color:var(--white);">📍 Colón &amp; Berutti · Avellaneda</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Responsive fix para móvil -->
+  <style>
+    @media (max-width: 640px) {
+      #artistas > div:first-of-type { grid-template-columns: 1fr !important; }
+    }
+  </style>
+
   <div class="artistas-grid">
     <div class="artista-card">
       <div class="artista-num">// 01</div>
       <span class="artista-emoji">🎻</span>
       <div class="artista-nombre">El Cachivache</div>
-      <div class="artista-rol">Música en vivo</div>
-      <p class="artista-desc">Una de las agrupaciones mas miticas del tango xxi, milongueros, punks, viajados por el mundo, farmean aura a lo loco</p>
+      <div class="artista-rol">Orquesta en vivo</div>
+      <p class="artista-desc">Una de las agrupaciones más míticas del tango siglo XXI. Milongueros, punks, viajados por el mundo.</p>
     </div>
     <div class="artista-card">
       <div class="artista-num">// 02</div>
@@ -1983,7 +2023,7 @@ Las <strong></strong>mejores tandas</strong>, una pista hermosa, escenario, luce
     }
 
     // Enviar datos al Google Apps Script (en segundo plano)
-    if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'AKfycbwXv42T3CWB59hiz8_6ClDDwinMaBDNiTFIWf71SqQ') {
+    if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'TU_APPS_SCRIPT_URL_AQUI') {
       try {
         await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
