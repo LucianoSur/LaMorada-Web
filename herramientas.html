@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Herramientas — La Morada del Nuevo Tango</title>
+<link rel="icon" type="image/png" href="img/logos/capitan.png" />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #080810;
+    --bg2: #0d0d1a;
+    --magenta: #e500a4;
+    --cyan: #00e5ff;
+    --yellow: #ffe600;
+    --white: #f0f0f0;
+    --gray: #555570;
+    --card-bg: #10101e;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Barlow Condensed', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* SCANLINES */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 3rem;
+    background: rgba(8,8,16,0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(229,0,164,0.2);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.15em;
+    color: var(--white);
+    text-decoration: none;
+  }
+
+  .nav-logo span { color: var(--magenta); }
+
+  .nav-back {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--gray);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nav-back::before { content: '←'; color: var(--magenta); }
+  .nav-back:hover { color: var(--cyan); }
+
+  /* ─── HERO / HEADER ─── */
+  .page-header {
+    padding: 9rem 3rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(229,0,164,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(229,0,164,0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+    transform: rotateX(25deg) scale(1.4) translateY(15%);
+    transform-origin: bottom;
+    pointer-events: none;
+  }
+
+  .header-glow {
+    position: absolute;
+    width: 500px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(229,0,164,0.12) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .page-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.5em;
+    color: var(--magenta);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .page-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    letter-spacing: 0.08em;
+    line-height: 0.95;
+    color: var(--white);
+    text-shadow: 0 0 40px rgba(229,0,164,0.3);
+    position: relative;
+    z-index: 1;
+    animation: glitch 8s infinite;
+  }
+
+  .page-title span { color: var(--magenta); text-shadow: 0 0 30px var(--magenta); }
+
+  @keyframes glitch {
+    0%, 94%, 100% { clip-path: none; transform: none; }
+    95% { transform: translate(-2px, 0); clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%); }
+    96% { transform: translate(2px, 0); clip-path: polygon(0 55%, 100% 55%, 100% 75%, 0 75%); }
+    97% { transform: none; clip-path: none; }
+  }
+
+  .page-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0.25em;
+    color: var(--gray);
+    text-transform: uppercase;
+    margin-top: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .page-sub span { color: var(--cyan); }
+
+  /* ─── TABS ─── */
+  .tabs-wrap {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 3rem auto 3rem;
+    max-width: 440px;
+    padding: 0 1.5rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 0.9rem 1.5rem;
+    background: var(--card-bg);
+    border: 1px solid rgba(229,0,164,0.2);
+    color: var(--gray);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .tab-btn:first-child { border-right: none; }
+
+  .tab-btn.active {
+    background: var(--magenta);
+    color: #fff;
+    border-color: var(--magenta);
+    box-shadow: 0 0 20px rgba(229,0,164,0.4);
+  }
+
+  .tab-btn:not(.active):hover {
+    color: var(--magenta);
+    border-color: rgba(229,0,164,0.5);
+  }
+
+  /* ─── PANELS ─── */
+  .panel { display: none; max-width: 560px; margin: 0 auto; padding: 0 1.5rem 6rem; }
+  .panel.active { display: block; }
+
+  /* ─── CARD BASE ─── */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid rgba(229,0,164,0.15);
+    padding: 2rem 1.8rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--magenta), transparent);
+  }
+
+  .card-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
+    color: var(--magenta);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+  }
+
+  /* ═══════════════════════════════════════
+     AFINADOR
+  ═══════════════════════════════════════ */
+  .note-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 7.5rem;
+    line-height: 1;
+    text-align: center;
+    color: var(--white);
+    transition: color 0.1s, text-shadow 0.1s;
+    min-height: 7.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .note-big.in-tune {
+    color: #00ff88;
+    text-shadow: 0 0 30px rgba(0,255,136,0.6), 0 0 60px rgba(0,255,136,0.3);
+  }
+
+  .note-big.sharp {
+    color: var(--yellow);
+    text-shadow: 0 0 30px rgba(255,230,0,0.5);
+  }
+
+  .note-big.flat {
+    color: var(--magenta);
+    text-shadow: 0 0 30px rgba(229,0,164,0.6);
+  }
+
+  .freq-row {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    color: var(--gray);
+    margin-top: 0.3rem;
+    min-height: 1.2em;
+  }
+
+  /* Aguja */
+  .needle-wrap {
+    position: relative;
+    height: 70px;
+    margin: 1.8rem 0 1rem;
+  }
+
+  .needle-rail {
+    position: absolute;
+    bottom: 4px;
+    left: 5%; right: 5%;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .needle-rail::before, .needle-rail::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    width: 1px;
+    height: 11px;
+    background: rgba(229,0,164,0.4);
+  }
+
+  .needle-rail::before { left: 0; }
+  .needle-rail::after { right: 0; }
+
+  .needle-center-mark {
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 14px;
+    background: rgba(0,229,255,0.5);
+  }
+
+  .needle {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: 2px;
+    height: 60px;
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(0deg);
+    transition: transform 0.1s ease-out;
+    background: linear-gradient(to bottom, transparent 0%, var(--white) 100%);
+  }
+
+  .needle.in-tune { background: linear-gradient(to bottom, transparent, #00ff88); }
+  .needle.sharp { background: linear-gradient(to bottom, transparent, var(--yellow)); }
+  .needle.flat { background: linear-gradient(to bottom, transparent, var(--magenta)); }
+
+  .needle-dot {
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--white);
+    transition: background 0.1s;
+  }
+
+  .needle-dot.in-tune { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
+  .needle-dot.sharp { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+  .needle-dot.flat { background: var(--magenta); box-shadow: 0 0 8px var(--magenta); }
+
+  .needle-ticks {
+    position: absolute;
+    bottom: -18px;
+    left: 5%; right: 5%;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.55rem;
+    color: rgba(85,85,112,0.7);
+    letter-spacing: 0;
+  }
+
+  .cents-row {
+    text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--gray);
+    margin-top: 1.8rem;
+    min-height: 1.4em;
+  }
+
+  .cents-row b { color: var(--cyan); font-weight: 600; }
+
+  .status-pill {
+    display: block;
+    text-align: center;
+    margin-top: 0.8rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gray);
+    transition: all 0.2s;
+  }
+
+  .status-pill.in-tune { color: #00ff88; }
+
+  /* Botón principal */
+  .btn-main {
+    display: block;
+    width: 100%;
+    padding: 1.1rem;
+    background: var(--magenta);
+    border: none;
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(229,0,164,0.3);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .btn-main:hover { box-shadow: 0 0 35px rgba(229,0,164,0.6); transform: translateY(-1px); }
+  .btn-main:active { transform: scale(0.99); }
+  .btn-main.stop { background: var(--bg2); border: 1px solid var(--magenta); color: var(--magenta); box-shadow: none; }
+  .btn-main.stop:hover { background: rgba(229,0,164,0.1); }
+
+  .btn-sec {
+    display: block;
+    width: 100%;
+    padding: 0.9rem;
+    background: transparent;
+    border: 1px solid rgba(0,229,255,0.2);
+    color: var(--cyan);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+  }
+
+  .btn-sec:hover { border-color: var(--cyan); box-shadow: 0 0 15px rgba(0,229,255,0.2); background: rgba(0,229,255,0.05); }
+
+  /* Notas ref */
+  .ref-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+
+  .ref-note-btn {
+    padding: 0.6rem 0.2rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(229,0,164,0.15);
+    color: var(--white);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+
+  .ref-note-btn:hover {
+    background: rgba(229,0,164,0.15);
+    border-color: var(--magenta);
+    color: var(--magenta);
+    box-shadow: 0 0 10px rgba(229,0,164,0.2);
+  }
+
+  .ref-note-btn:active { transform: scale(0.96); }
+
+  .error-msg {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.62rem;
+    color: var(--magenta);
+    letter-spacing: 0.1em;
+    padding: 0.5rem;
+    display: none;
+  }
+
+  /* ═══════════════════════════════════════
+     METRÓNOMO
+  ═══════════════════════════════════════ */
+  .bpm-giant {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 8rem;
+    line-height: 1;
+    text-align: center;
+    color: var(--white);
+    transition: color 0.06s;
+    letter-spacing: 0.02em;
+  }
+
+  .bpm-giant.flash {
+    color: var(--cyan);
+    text-shadow: 0 0 30px rgba(0,229,255,0.7);
+  }
+
+  .bpm-unit {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.5em;
+    color: var(--gray);
+    text-transform: uppercase;
+    margin-top: -0.3rem;
+  }
+
+  .tempo-name {
+    text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+    min-height: 1.4em;
+  }
+
+  /* Péndulo */
+  .pendulum-stage {
+    height: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 6px;
+    position: relative;
+    margin: 1.2rem 0;
+  }
+
+  .pendulum-arm {
+    width: 3px;
+    height: 72px;
+    background: linear-gradient(to bottom, rgba(229,0,164,0.4), var(--magenta));
+    transform-origin: top center;
+    transform: rotate(0deg);
+    transition: transform 0.05s linear;
+    position: relative;
+    border-radius: 1px;
+  }
+
+  .pendulum-weight {
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--magenta);
+    box-shadow: 0 0 12px rgba(229,0,164,0.8);
+    transition: box-shadow 0.05s;
+  }
+
+  .pendulum-weight.accent {
+    background: var(--cyan);
+    box-shadow: 0 0 16px rgba(0,229,255,0.9);
+  }
+
+  /* Beat dots */
+  .beat-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .beat-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(229,0,164,0.2);
+    transition: all 0.07s;
+  }
+
+  .beat-dot.on-first {
+    background: var(--cyan);
+    border-color: var(--cyan);
+    box-shadow: 0 0 10px rgba(0,229,255,0.8);
+    transform: scale(1.3);
+  }
+
+  .beat-dot.on {
+    background: var(--magenta);
+    border-color: var(--magenta);
+    box-shadow: 0 0 8px rgba(229,0,164,0.7);
+    transform: scale(1.15);
+  }
+
+  /* Slider */
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.7rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  .slider-val { color: var(--cyan); }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: rgba(229,0,164,0.2);
+    outline: none;
+    cursor: pointer;
+    border-radius: 1px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    background: var(--magenta);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(229,0,164,0.6);
+    transition: box-shadow 0.15s;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 20px rgba(229,0,164,0.9);
+  }
+
+  /* Botones arrow */
+  .arrow-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .arrow-btn {
+    padding: 0.8rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(229,0,164,0.15);
+    color: var(--white);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .arrow-btn:hover {
+    background: rgba(229,0,164,0.1);
+    border-color: var(--magenta);
+    color: var(--magenta);
+  }
+
+  .arrow-btn:active { transform: scale(0.97); }
+
+  /* Compás */
+  .sig-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .sig-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    color: var(--gray);
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .sig-btns { display: flex; gap: 6px; flex: 1; justify-content: flex-end; }
+
+  .sig-btn {
+    padding: 0.45rem 0.9rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(229,0,164,0.15);
+    color: var(--gray);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .sig-btn.active {
+    background: rgba(229,0,164,0.15);
+    border-color: var(--magenta);
+    color: var(--magenta);
+  }
+
+  .sig-btn:hover:not(.active) {
+    border-color: rgba(229,0,164,0.4);
+    color: var(--white);
+  }
+
+  /* ─── FOOTER ─── */
+  .page-footer {
+    border-top: 1px solid rgba(229,0,164,0.1);
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .page-footer a {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--gray);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .page-footer a:hover { color: var(--magenta); }
+
+  @media (max-width: 480px) {
+    nav { padding: 1rem 1.5rem; }
+    .page-header { padding: 7rem 1.5rem 3rem; }
+    .bpm-giant { font-size: 6rem; }
+    .note-big { font-size: 5.5rem; min-height: 5.5rem; }
+    .ref-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">La <span>Morada</span></a>
+  <a href="index.html" class="nav-back">Volver al sitio</a>
+</nav>
+
+<!-- HEADER -->
+<div class="page-header">
+  <div class="header-grid"></div>
+  <div class="header-glow"></div>
+  <p class="page-label">// La Morada del Nuevo Tango</p>
+  <h1 class="page-title">Herra<span>mientas</span></h1>
+  <p class="page-sub">Afinador <span>·</span> Metrónomo</p>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <button class="tab-btn active" onclick="showPanel('tuner', this)">Afinador</button>
+  <button class="tab-btn" onclick="showPanel('metro', this)">Metrónomo</button>
+</div>
+
+<!-- ════ AFINADOR ════ -->
+<div class="panel active" id="panel-tuner">
+
+  <div class="card">
+    <p class="card-label">// detección de pitch</p>
+    <div class="note-big" id="note-name">—</div>
+    <div class="freq-row" id="freq-row">sin señal</div>
+
+    <div class="needle-wrap">
+      <div class="needle-rail">
+        <div class="needle-center-mark"></div>
+      </div>
+      <div class="needle" id="needle">
+        <div class="needle-dot" id="needle-dot"></div>
+      </div>
+      <div class="needle-ticks">
+        <span>−50¢</span><span>−25¢</span><span>0</span><span>+25¢</span><span>+50¢</span>
+      </div>
+    </div>
+
+    <div class="cents-row" id="cents-row">esperando señal...</div>
+    <span class="status-pill" id="status-pill">inactivo</span>
+  </div>
+
+  <p class="error-msg" id="tuner-error">// Error: no se pudo acceder al micrófono. Verificá los permisos del navegador.</p>
+
+  <button class="btn-main" id="tuner-btn" onclick="toggleTuner()">Activar afinador</button>
+
+  <div class="card">
+    <p class="card-label">// notas de referencia</p>
+    <div class="ref-grid" id="ref-grid"></div>
+  </div>
+
+</div>
+
+<!-- ════ METRÓNOMO ════ -->
+<div class="panel" id="panel-metro">
+
+  <div class="card">
+    <p class="card-label">// tempo</p>
+    <div class="bpm-giant" id="bpm-display">120</div>
+    <div class="bpm-unit">BPM</div>
+    <div class="tempo-name" id="tempo-name">Moderato</div>
+
+    <div class="pendulum-stage">
+      <div class="pendulum-arm" id="pend-arm">
+        <div class="pendulum-weight" id="pend-weight"></div>
+      </div>
+    </div>
+
+    <div class="beat-row" id="beat-row"></div>
+  </div>
+
+  <div class="card">
+    <p class="card-label">// ajuste de tempo</p>
+    <div class="slider-label">
+      <span>Velocidad</span>
+      <span class="slider-val" id="slider-out">120 BPM</span>
+    </div>
+    <input type="range" id="bpm-slider" min="30" max="300" value="120" step="1"
+      oninput="setBPM(parseInt(this.value))">
+  </div>
+
+  <div class="arrow-row">
+    <button class="arrow-btn" onclick="changeBPM(-10)">−10</button>
+    <button class="arrow-btn" onclick="changeBPM(-1)">−1</button>
+    <button class="arrow-btn" onclick="changeBPM(+1)">+1</button>
+    <button class="arrow-btn" onclick="changeBPM(+10)">+10</button>
+  </div>
+
+  <div class="card" style="padding:1.4rem 1.8rem;">
+    <div class="sig-row">
+      <span class="sig-label">// Compás</span>
+      <div class="sig-btns">
+        <button class="sig-btn" onclick="setSig(2,this)">2/4</button>
+        <button class="sig-btn" onclick="setSig(3,this)">3/4</button>
+        <button class="sig-btn active" onclick="setSig(4,this)">4/4</button>
+        <button class="sig-btn" onclick="setSig(6,this)">6/8</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-main" id="metro-btn" onclick="toggleMetro()">Iniciar metrónomo</button>
+  <button class="btn-sec" onclick="tapTempo()">Tap Tempo</button>
+
+</div>
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <a href="index.html">© 2026 La Morada del Nuevo Tango · Tango Siglo XXI</a>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   TABS
+═══════════════════════════════════════ */
+function showPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ═══════════════════════════════════════
+   AFINADOR CROMÁTICO
+═══════════════════════════════════════ */
+const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+const REF_LIST = [
+  {n:'E2',f:82.41},{n:'A2',f:110},{n:'D3',f:146.83},{n:'G3',f:196},
+  {n:'B3',f:246.94},{n:'E4',f:329.63},{n:'A4',f:440},{n:'D4',f:293.66},
+  {n:'G4',f:392},{n:'B4',f:493.88},{n:'E5',f:659.25},{n:'A3',f:220}
+];
+
+let audioCtx = null, analyser = null, micStream = null;
+let tunerActive = false, animFrame = null;
+
+function buildRefGrid() {
+  const g = document.getElementById('ref-grid');
+  REF_LIST.forEach(({n,f}) => {
+    const b = document.createElement('button');
+    b.className = 'ref-note-btn';
+    b.textContent = n;
+    b.onclick = () => playRef(f);
+    g.appendChild(b);
+  });
+}
+
+function playRef(freq) {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0, audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(0.28, audioCtx.currentTime + 0.02);
+  gain.gain.setTargetAtTime(0, audioCtx.currentTime + 1.5, 0.35);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 4);
+}
+
+function freqToNote(freq) {
+  const semitones = 12 * Math.log2(freq / 440);
+  const midi = Math.round(semitones) + 69;
+  const note = NOTES[midi % 12];
+  const octave = Math.floor(midi / 12) - 1;
+  const exactMidi = semitones + 69;
+  const cents = Math.round((exactMidi - midi) * 100);
+  return { name: note + octave, cents };
+}
+
+function autoCorrelate(buf, sr) {
+  const N = buf.length;
+  let rms = 0;
+  for (let i = 0; i < N; i++) rms += buf[i] * buf[i];
+  rms = Math.sqrt(rms / N);
+  if (rms < 0.012) return -1;
+
+  let r1 = 0, r2 = N - 1;
+  for (let i = 0; i < N / 2; i++) { if (Math.abs(buf[i]) < 0.2) { r1 = i; break; } }
+  for (let i = 1; i < N / 2; i++) { if (Math.abs(buf[N - i]) < 0.2) { r2 = N - i; break; } }
+  const tb = buf.slice(r1, r2);
+  const len = tb.length;
+  if (len < 16) return -1;
+
+  const c = new Float32Array(len);
+  for (let i = 0; i < len; i++)
+    for (let j = 0; j < len - i; j++)
+      c[i] += tb[j] * tb[j + i];
+
+  let d = 0;
+  while (d < len - 1 && c[d] > c[d + 1]) d++;
+  let maxV = -1, maxP = -1;
+  for (let i = d; i < len; i++) { if (c[i] > maxV) { maxV = c[i]; maxP = i; } }
+  if (maxP < 1 || maxP >= len - 1) return -1;
+
+  const x1 = c[maxP - 1], x2 = c[maxP], x3 = c[maxP + 1];
+  const T = maxP + (x3 - x1) / (2 * (2 * x2 - x1 - x3));
+  return sr / T;
+}
+
+async function toggleTuner() {
+  if (!tunerActive) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 8192;
+      audioCtx.createMediaStreamSource(micStream).connect(analyser);
+      tunerActive = true;
+      const btn = document.getElementById('tuner-btn');
+      btn.textContent = 'Desactivar afinador';
+      btn.classList.add('stop');
+      document.getElementById('tuner-error').style.display = 'none';
+      detectPitch();
+    } catch(e) {
+      document.getElementById('tuner-error').style.display = 'block';
+    }
+  } else {
+    tunerActive = false;
+    cancelAnimationFrame(animFrame);
+    if (micStream) micStream.getTracks().forEach(t => t.stop());
+    const btn = document.getElementById('tuner-btn');
+    btn.textContent = 'Activar afinador';
+    btn.classList.remove('stop');
+    const noteEl = document.getElementById('note-name');
+    noteEl.textContent = '—';
+    noteEl.className = 'note-big';
+    document.getElementById('freq-row').textContent = 'sin señal';
+    document.getElementById('cents-row').textContent = 'esperando señal...';
+    document.getElementById('status-pill').textContent = 'inactivo';
+    document.getElementById('status-pill').className = 'status-pill';
+    const n = document.getElementById('needle');
+    n.style.transform = 'translateX(-50%) rotate(0deg)';
+    n.className = 'needle';
+    document.getElementById('needle-dot').className = 'needle-dot';
+  }
+}
+
+function detectPitch() {
+  const buf = new Float32Array(analyser.fftSize);
+  analyser.getFloatTimeDomainData(buf);
+  const freq = autoCorrelate(buf, audioCtx.sampleRate);
+
+  if (freq > 60 && freq < 1300) {
+    const { name, cents } = freqToNote(freq);
+    const noteEl = document.getElementById('note-name');
+    const needle = document.getElementById('needle');
+    const dot = document.getElementById('needle-dot');
+    const status = document.getElementById('status-pill');
+    const angle = Math.max(-45, Math.min(45, (cents / 50) * 45));
+
+    noteEl.textContent = name;
+    document.getElementById('freq-row').textContent = freq.toFixed(1) + ' Hz';
+    needle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+
+    if (Math.abs(cents) <= 5) {
+      noteEl.className = 'note-big in-tune';
+      needle.className = 'needle in-tune';
+      dot.className = 'needle-dot in-tune';
+      status.textContent = '✓ afinado';
+      status.className = 'status-pill in-tune';
+      document.getElementById('cents-row').innerHTML = '<b>perfecto</b>';
+    } else if (cents > 5) {
+      noteEl.className = 'note-big sharp';
+      needle.className = 'needle sharp';
+      dot.className = 'needle-dot sharp';
+      status.textContent = 'subir ♯';
+      status.className = 'status-pill';
+      document.getElementById('cents-row').innerHTML = `<b>+${cents}¢</b> &nbsp;·&nbsp; demasiado alto`;
+    } else {
+      noteEl.className = 'note-big flat';
+      needle.className = 'needle flat';
+      dot.className = 'needle-dot flat';
+      status.textContent = 'bajar ♭';
+      status.className = 'status-pill';
+      document.getElementById('cents-row').innerHTML = `<b>${cents}¢</b> &nbsp;·&nbsp; demasiado bajo`;
+    }
+  }
+
+  if (tunerActive) animFrame = requestAnimationFrame(detectPitch);
+}
+
+buildRefGrid();
+
+/* ═══════════════════════════════════════
+   METRÓNOMO
+═══════════════════════════════════════ */
+let bpm = 120, beatsPerBar = 4, currentBeat = 0;
+let metroActive = false, metroTimer = null;
+let mAudioCtx = null;
+let tapTimes = [];
+
+const TEMPOS = [
+  {n:'Larghissimo',max:24},{n:'Grave',max:40},{n:'Largo',max:60},
+  {n:'Larghetto',max:66},{n:'Adagio',max:76},{n:'Andante',max:108},
+  {n:'Moderato',max:120},{n:'Allegretto',max:156},{n:'Allegro',max:176},
+  {n:'Vivace',max:200},{n:'Presto',max:220},{n:'Prestissimo',max:999}
+];
+
+function getTempoName(b) {
+  for (const t of TEMPOS) if (b <= t.max) return t.n;
+  return 'Prestissimo';
+}
+
+function buildBeatRow() {
+  const row = document.getElementById('beat-row');
+  row.innerHTML = '';
+  for (let i = 0; i < beatsPerBar; i++) {
+    const d = document.createElement('div');
+    d.className = 'beat-dot';
+    d.id = 'dot-' + i;
+    row.appendChild(d);
+  }
+}
+
+function setSig(n, btn) {
+  beatsPerBar = n;
+  currentBeat = 0;
+  document.querySelectorAll('.sig-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildBeatRow();
+  if (metroActive) { clearTimeout(metroTimer); tick(); }
+}
+
+function setBPM(val) {
+  bpm = Math.min(300, Math.max(30, val));
+  document.getElementById('bpm-display').textContent = bpm;
+  document.getElementById('bpm-slider').value = bpm;
+  document.getElementById('slider-out').textContent = bpm + ' BPM';
+  document.getElementById('tempo-name').textContent = getTempoName(bpm);
+  if (metroActive) { clearTimeout(metroTimer); tick(); }
+}
+
+function changeBPM(d) { setBPM(bpm + d); }
+
+function beep(isFirst) {
+  if (!mAudioCtx) mAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = mAudioCtx.createOscillator();
+  const gain = mAudioCtx.createGain();
+  osc.type = isFirst ? 'square' : 'triangle';
+  osc.frequency.value = isFirst ? 1320 : 880;
+  gain.gain.setValueAtTime(isFirst ? 0.5 : 0.3, mAudioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, mAudioCtx.currentTime + 0.07);
+  osc.connect(gain);
+  gain.connect(mAudioCtx.destination);
+  osc.start();
+  osc.stop(mAudioCtx.currentTime + 0.1);
+}
+
+function tick() {
+  const isFirst = currentBeat === 0;
+  beep(isFirst);
+
+  const bpmEl = document.getElementById('bpm-display');
+  bpmEl.classList.add('flash');
+  setTimeout(() => bpmEl.classList.remove('flash'), 70);
+
+  document.querySelectorAll('.beat-dot').forEach((d, i) => {
+    d.classList.remove('on', 'on-first');
+    if (i === currentBeat) d.classList.add(isFirst ? 'on-first' : 'on');
+  });
+
+  const arm = document.getElementById('pend-arm');
+  const weight = document.getElementById('pend-weight');
+  const angle = (currentBeat % 2 === 0 ? 1 : -1) * 32;
+  arm.style.transform = `rotate(${angle}deg)`;
+  if (isFirst) weight.classList.add('accent');
+  else weight.classList.remove('accent');
+
+  currentBeat = (currentBeat + 1) % beatsPerBar;
+  metroTimer = setTimeout(tick, (60 / bpm) * 1000);
+}
+
+function startMetro() { currentBeat = 0; tick(); }
+
+function stopMetro() {
+  clearTimeout(metroTimer);
+  document.querySelectorAll('.beat-dot').forEach(d => d.classList.remove('on','on-first'));
+  document.getElementById('pend-arm').style.transform = 'rotate(0deg)';
+  document.getElementById('pend-weight').classList.remove('accent');
+}
+
+function toggleMetro() {
+  metroActive = !metroActive;
+  const btn = document.getElementById('metro-btn');
+  if (metroActive) {
+    if (!mAudioCtx) mAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    startMetro();
+    btn.textContent = 'Detener metrónomo';
+    btn.classList.add('stop');
+  } else {
+    stopMetro();
+    btn.textContent = 'Iniciar metrónomo';
+    btn.classList.remove('stop');
+  }
+}
+
+function tapTempo() {
+  const now = Date.now();
+  if (tapTimes.length > 0 && now - tapTimes[tapTimes.length - 1] > 3000) tapTimes = [];
+  tapTimes.push(now);
+  if (tapTimes.length > 8) tapTimes.shift();
+  if (tapTimes.length >= 2) {
+    const gaps = [];
+    for (let i = 1; i < tapTimes.length; i++) gaps.push(tapTimes[i] - tapTimes[i-1]);
+    const avg = gaps.reduce((a,b) => a+b) / gaps.length;
+    setBPM(Math.round(60000 / avg));
+  }
+}
+
+buildBeatRow();
+</script>
+</body>
+</html>
