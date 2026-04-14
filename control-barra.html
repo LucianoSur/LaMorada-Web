@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Caja — Milonga del Bicentenario</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0e0e12;
+  --surface: #17171d;
+  --surface2: #1f1f27;
+  --border: #2a2a35;
+  --text: #f0eff8;
+  --muted: #6b6a7d;
+  --accent: #c8a2ff;
+  --accent2: #7ed4ff;
+  --green: #4ade80;
+  --red: #f87171;
+  --blue: #60a5fa;
+  --purple: #c084fc;
+  --orange: #fb923c;
+  --gold: #fbbf24;
+}
+
+body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 0 0 4rem; max-width: 680px; margin: 0 auto; min-height: 100vh; }
+
+/* ── HEADER ── */
+.app-header { padding: 1.4rem 1.2rem 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+.app-header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.app-title { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
+.app-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.status-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.25); white-space: nowrap; }
+.status-pill.offline { background: rgba(248,113,113,0.12); color: var(--red); border-color: rgba(248,113,113,0.25); }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.status-pill.offline .status-dot { background: var(--red); }
+.rol-chip { font-size: 11px; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); margin-top: 6px; display: inline-block; }
+
+/* ── SYNC BAR ── */
+.sync-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; height: 2px; background: var(--green); transition: background 0.3s; }
+.sync-bar.offline { background: var(--red); }
+.sync-bar.saving  { background: var(--gold); }
+
+/* ── TABS ── */
+.view-tabs { display: flex; gap: 6px; padding: 0 1.2rem 1rem; overflow-x: auto; }
+.view-tabs::-webkit-scrollbar { display: none; }
+.vtab { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; font-weight: 600; cursor: pointer; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+.vtab.active { background: var(--accent); color: #0e0e12; border-color: var(--accent); }
+
+.view { display: none; padding: 0 1.2rem; }
+.view.active { display: block; }
+
+/* ── CARDS RESUMEN ── */
+.cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 12px; }
+@media(max-width:460px){ .cards { grid-template-columns: repeat(2,1fr); } }
+.metric { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 0.8rem 0.9rem; }
+.metric label { font-size: 10px; color: var(--muted); display: block; margin-bottom: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.metric .val { font-size: 17px; font-weight: 800; color: var(--text); }
+.val.green  { color: var(--green); }
+.val.red    { color: var(--red); }
+.val.blue   { color: var(--blue); }
+.val.purple { color: var(--purple); }
+.val.orange { color: var(--orange); }
+.val.gold   { color: var(--gold); }
+
+/* ── CAJA CAMBIO ── */
+.caja-unica { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 12px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.cu-label { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+.caja-unica input { height: 36px; width: 160px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); padding: 0 10px; font-size: 15px; font-weight: 700; }
+.caja-unica input:focus { outline: none; border-color: var(--accent); }
+
+/* ── ACORDEÓN ── */
+.accordion { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); margin-bottom: 10px; overflow: hidden; }
+.acc-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; cursor: pointer; user-select: none; }
+.acc-header:hover { background: var(--surface2); }
+.acc-title { font-size: 15px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.acc-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+.badge-org  { background: rgba(251,146,60,0.15); color: var(--orange); border: 1px solid rgba(251,146,60,0.3); }
+.badge-buf  { background: rgba(192,132,252,0.15); color: var(--purple); border: 1px solid rgba(192,132,252,0.3); }
+.badge-ant  { background: rgba(251,191,36,0.15); color: var(--gold); border: 1px solid rgba(251,191,36,0.3); }
+.acc-meta { font-size: 12px; color: var(--muted); text-align: right; flex: 1; margin: 0 10px; line-height: 1.5; }
+.acc-meta .hi { font-weight: 700; color: var(--green); }
+.acc-arrow { font-size: 10px; color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
+.acc-arrow.open { transform: rotate(180deg); }
+.acc-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--border); }
+.acc-body.open { display: block; }
+.sec-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 14px 0 8px; }
+
+/* ── TABLA PRODUCTOS ── */
+table.items { width: 100%; border-collapse: collapse; }
+table.items th { font-size: 10px; color: var(--muted); font-weight: 700; text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+table.items td { padding: 8px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 14px; vertical-align: middle; }
+table.items tr:last-child td { border-bottom: none; }
+table.items th.c, table.items td.c { text-align: center; }
+table.items th.r, table.items td.r { text-align: right; }
+.price-cell { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.sub-cell { font-weight: 700; font-size: 13px; white-space: nowrap; color: var(--text); }
+
+/* ── CONTADORES EF/DB ── */
+.pay-counters { display: flex; flex-direction: column; gap: 4px; }
+.pay-row { display: flex; align-items: center; gap: 4px; }
+.pay-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; width: 18px; text-align: center; flex-shrink: 0; }
+.pay-lbl.ef { color: var(--blue); }
+.pay-lbl.db { color: var(--purple); }
+.pay-row button { width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; user-select: none; flex-shrink: 0; }
+.pay-row button:hover { background: var(--border); }
+.pay-row button:active { transform: scale(0.88); }
+.pay-row .qty { min-width: 22px; text-align: center; font-weight: 800; font-size: 14px; }
+.qty.ef { color: var(--blue); }
+.qty.db { color: var(--purple); }
+
+/* ── ANTICIPADAS ── */
+.ant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+.ant-card { background: var(--surface2); border-radius: 10px; border: 1px solid var(--border); padding: 12px 14px; }
+.ant-card-label { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+.ant-counter { display: flex; align-items: center; gap: 8px; }
+.ant-counter button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; user-select: none; flex-shrink: 0; }
+.ant-counter button:hover { background: var(--border); }
+.ant-counter button:active { transform: scale(0.88); }
+.ant-counter .qty { min-width: 28px; text-align: center; font-weight: 800; font-size: 20px; color: var(--gold); }
+.ant-total { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+.ant-total span { font-weight: 800; color: var(--gold); }
+
+/* ── ENTRADA CONTADORES ── */
+.entrada-wrap { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 4px; }
+.entrada-col { display: flex; flex-direction: column; gap: 6px; }
+.ec-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.ec-lbl.ef { color: var(--blue); }
+.ec-lbl.db { color: var(--purple); }
+.entrada-counter { display: flex; align-items: center; gap: 6px; }
+.entrada-counter button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 19px; cursor: pointer; display: flex; align-items: center; justify-content: center; user-select: none; }
+.entrada-counter button:hover { background: var(--border); }
+.entrada-counter button:active { transform: scale(0.88); }
+.entrada-counter .qty { min-width: 30px; text-align: center; font-weight: 800; font-size: 18px; }
+.entrada-price-row { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+.entrada-price-row label { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.entrada-price-row input { height: 34px; width: 140px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); padding: 0 10px; font-size: 15px; font-weight: 700; }
+.entrada-price-row input:focus { outline: none; border-color: var(--accent); }
+
+/* ── INVERSIÓN ── */
+.inv-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+.inv-label { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+.inv-row input { height: 34px; width: 150px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); padding: 0 10px; font-size: 15px; font-weight: 700; }
+.inv-row input:focus { outline: none; border-color: var(--accent); }
+.inv-result { font-size: 13px; font-weight: 800; }
+.inv-result.green { color: var(--green); }
+.inv-result.red   { color: var(--red); }
+
+/* ── AGREGAR PRODUCTO ── */
+.add-row { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+.add-row input { height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); padding: 0 10px; font-size: 13px; }
+.add-row input:focus { outline: none; border-color: var(--accent); }
+.inp-name { flex: 2; min-width: 110px; }
+.inp-price { flex: 1; min-width: 85px; }
+.add-btn { height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.add-btn:hover { background: var(--border); }
+.del-btn { background: none; border: none; color: var(--border); font-size: 14px; cursor: pointer; padding: 3px 6px; border-radius: 4px; }
+.del-btn:hover { color: var(--red); background: rgba(248,113,113,0.1); }
+.reset-sec { margin-top: 12px; font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
+.reset-sec:hover { color: var(--red); }
+
+/* ── DESGLOSE ENTRADA ── */
+.desglose-box { margin-top: 12px; padding: 10px 14px; background: var(--surface2); border-radius: 10px; border: 1px solid var(--border); font-size: 13px; display: none; }
+.desglose-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.desglose-row:last-child { margin-bottom: 0; }
+.desglose-row .dl { color: var(--muted); }
+
+/* ── CONSOLIDADO ── */
+.consolidado { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); padding: 16px; margin-bottom: 10px; }
+.consolidado h2 { font-size: 15px; font-weight: 800; margin-bottom: 14px; color: var(--text); }
+.cons-section { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.cons-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.cons-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.cons-title.org { color: var(--orange); }
+.cons-title.buf { color: var(--purple); }
+.cons-title.ant { color: var(--gold); }
+.cons-rows { display: flex; flex-direction: column; gap: 5px; }
+.cons-row { display: flex; justify-content: space-between; font-size: 13px; }
+.cons-row .lbl { color: var(--muted); }
+.cons-row .amt { font-weight: 600; color: var(--text); }
+.cons-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+
+/* ── CIERRE ── */
+.cierre-box { background: var(--surface); border-radius: 14px; border: 1px solid var(--accent); padding: 16px; margin-bottom: 10px; }
+.cierre-box h2 { font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--text); }
+.cierre-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+.cierre-section { margin-bottom: 14px; }
+.cierre-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 8px; }
+.cierre-line { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.cierre-line:last-child { border-bottom: none; }
+.cierre-line .lbl { color: var(--muted); }
+.cierre-line .amt { font-weight: 600; color: var(--text); }
+.cierre-line .amt.green  { color: var(--green); }
+.cierre-line .amt.red    { color: var(--red); }
+.cierre-line .amt.blue   { color: var(--blue); }
+.cierre-line .amt.purple { color: var(--purple); }
+.cierre-line .amt.gold   { color: var(--gold); }
+.cierre-grand { display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; margin-top: 14px; padding-top: 14px; border-top: 2px solid var(--accent); }
+.cierre-grand .amt.green { color: var(--green); }
+.cierre-grand .amt.red   { color: var(--red); }
+.cierre-timestamp { font-size: 11px; color: var(--muted); margin-top: 10px; }
+.wsp-btn { width: 100%; margin-top: 14px; height: 44px; border-radius: 10px; border: none; background: #25d366; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.wsp-btn:hover { background: #1ebe5d; }
+.wsp-btn svg { width: 20px; height: 20px; fill: #fff; flex-shrink: 0; }
+.cierre-btn { width: 100%; height: 44px; border-radius: 10px; border: 1px solid var(--accent); background: var(--accent); color: #0e0e12; font-size: 15px; font-weight: 800; cursor: pointer; margin-bottom: 10px; }
+.cierre-btn:hover { opacity: 0.9; }
+
+/* ── HISTORIAL ── */
+.hist-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.countdown-box { font-size: 13px; color: var(--muted); background: var(--surface); border-radius: 8px; border: 1px solid var(--border); padding: 7px 12px; }
+.countdown-box span { font-weight: 800; color: var(--text); }
+.btn-row { display: flex; gap: 6px; }
+.snap-btn { height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: #0e0e12; font-size: 13px; font-weight: 700; cursor: pointer; }
+.snap-btn:hover { opacity: 0.9; }
+.clear-btn { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 12px; cursor: pointer; }
+.clear-btn:hover { color: var(--red); border-color: rgba(248,113,113,0.4); }
+table.hist { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.hist th { font-size: 10px; color: var(--muted); font-weight: 700; text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); background: var(--surface2); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+table.hist th.r, table.hist td.r { text-align: right; }
+table.hist td { padding: 7px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; white-space: nowrap; color: var(--text); }
+table.hist tr:last-child td { border-bottom: none; }
+.badge { font-size: 9px; border-radius: 4px; padding: 2px 6px; font-weight: 700; }
+.badge.auto   { background: rgba(96,165,250,0.15); color: var(--blue); }
+.badge.manual { background: rgba(74,222,128,0.15); color: var(--green); }
+.empty-hist { text-align: center; color: var(--muted); font-size: 13px; padding: 2rem; }
+
+/* ── GASTOS ── */
+.gastos-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.gastos-total-box { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); padding: 10px 14px; font-size: 13px; color: var(--muted); }
+.gastos-total-box span { font-weight: 800; font-size: 16px; color: var(--red); }
+.gasto-form { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); padding: 14px 16px; margin-bottom: 12px; }
+.gasto-form-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 12px; }
+.gasto-inputs { display: flex; gap: 8px; flex-wrap: wrap; }
+.gasto-inputs input { height: 38px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); padding: 0 10px; font-size: 13px; }
+.gasto-inputs input:focus { outline: none; border-color: var(--red); }
+.inp-gdesc { flex: 2; min-width: 140px; }
+.inp-gmonto { flex: 1; min-width: 110px; }
+.inp-gcat { flex: 1; min-width: 120px; }
+.gasto-add-btn { height: 38px; padding: 0 16px; border-radius: 8px; border: none; background: var(--red); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.gasto-add-btn:hover { opacity: 0.85; }
+.gastos-list { display: flex; flex-direction: column; gap: 6px; }
+.gasto-item { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+.gasto-item-left { flex: 1; min-width: 0; }
+.gasto-desc { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gasto-meta { font-size: 11px; color: var(--muted); margin-top: 2px; display: flex; gap: 8px; align-items: center; }
+.gasto-cat-pill { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 10px; background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); text-transform: uppercase; letter-spacing: 0.04em; }
+.gasto-monto { font-size: 15px; font-weight: 800; color: var(--red); white-space: nowrap; }
+.gasto-del { background: none; border: none; color: var(--border); font-size: 14px; cursor: pointer; padding: 4px 6px; border-radius: 4px; flex-shrink: 0; }
+.gasto-del:hover { color: var(--red); background: rgba(248,113,113,0.1); }
+.gastos-empty { text-align: center; color: var(--muted); font-size: 13px; padding: 2rem; background: var(--surface); border-radius: 14px; border: 1px solid var(--border); }
+.gastos-resumen { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); padding: 14px 16px; margin-bottom: 12px; }
+.gastos-resumen-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 10px; }
+.gasto-cat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.gasto-cat-row:last-child { border-bottom: none; }
+.gasto-cat-row .lbl { color: var(--muted); }
+.gasto-cat-row .amt { font-weight: 700; color: var(--red); }
+
+/* ── FOOTER BRANDING ── */
+.app-footer { margin-top: 3rem; padding: 1.5rem 1.2rem; border-top: 1px solid var(--border); text-align: center; }
+.app-footer .dev-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.app-footer .morada-brand { font-size: 14px; font-weight: 800; color: var(--accent); letter-spacing: 0.5px; }
+.app-footer .morada-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── PIN SCREEN ── */
+.pin-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
+.pin-screen.hidden { display: none; }
+.pin-logo { width: 64px; height: 64px; border-radius: 18px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 30px; margin-bottom: 16px; }
+.pin-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; color: var(--text); }
+.pin-sub { font-size: 13px; color: var(--muted); margin-bottom: 2.5rem; text-align: center; }
+.pin-display { font-size: 40px; letter-spacing: 22px; min-height: 56px; margin-bottom: 2rem; padding-left: 22px; }
+.pin-display .dot { color: var(--accent); }
+.pin-display .placeholder { color: var(--border); }
+.pin-pad { display: grid; grid-template-columns: repeat(3, 76px); gap: 10px; }
+.pin-btn { width: 76px; height: 76px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); font-size: 24px; font-weight: 600; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; }
+.pin-btn:hover { background: var(--surface2); }
+.pin-btn:active { transform: scale(0.91); background: var(--border); }
+.pin-btn.del { font-size: 20px; color: var(--muted); }
+.pin-btn.empty { border: none; background: none; cursor: default; }
+.pin-error { font-size: 13px; color: var(--red); margin-top: 1.2rem; min-height: 20px; font-weight: 600; }
+.pin-brand { position: absolute; bottom: 2rem; font-size: 12px; color: var(--muted); }
+.pin-brand span { color: var(--accent); font-weight: 700; }
+
+/* ── ROL SCREEN ── */
+.rol-screen { position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
+.rol-screen.hidden { display: none; }
+.rol-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; color: var(--text); }
+.rol-sub { font-size: 13px; color: var(--muted); margin-bottom: 2rem; }
+.rol-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 340px; }
+.rol-btn { padding: 1.3rem 1rem; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; text-align: center; transition: border-color 0.15s; }
+.rol-btn:hover { border-color: var(--accent); background: var(--surface2); }
+.rol-btn:active { transform: scale(0.95); }
+.rol-icon { font-size: 30px; margin-bottom: 8px; }
+.rol-name { font-size: 15px; font-weight: 800; color: var(--text); }
+.rol-desc { font-size: 11px; color: var(--muted); margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<div class="sync-bar" id="sync-bar"></div>
+
+<!-- PIN -->
+<div class="pin-screen" id="pin-screen">
+  <div class="pin-logo">🎶</div>
+  <div class="pin-title">Control de Caja</div>
+  <div class="pin-sub">Milonga del Bicentenario<br>El Cachivache · 18 de abril 2026</div>
+  <div class="pin-display" id="pin-display">
+    <span class="placeholder">●</span><span class="placeholder">●</span><span class="placeholder">●</span><span class="placeholder">●</span>
+  </div>
+  <div class="pin-pad">
+    <button class="pin-btn" onclick="pinPress('1')">1</button>
+    <button class="pin-btn" onclick="pinPress('2')">2</button>
+    <button class="pin-btn" onclick="pinPress('3')">3</button>
+    <button class="pin-btn" onclick="pinPress('4')">4</button>
+    <button class="pin-btn" onclick="pinPress('5')">5</button>
+    <button class="pin-btn" onclick="pinPress('6')">6</button>
+    <button class="pin-btn" onclick="pinPress('7')">7</button>
+    <button class="pin-btn" onclick="pinPress('8')">8</button>
+    <button class="pin-btn" onclick="pinPress('9')">9</button>
+    <button class="pin-btn empty"></button>
+    <button class="pin-btn" onclick="pinPress('0')">0</button>
+    <button class="pin-btn del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="pin-error" id="pin-error"></div>
+  <div class="pin-brand">Desarrollado por <span>La Morada del Nuevo Tango</span></div>
+</div>
+
+<!-- ROL -->
+<div class="rol-screen hidden" id="rol-screen">
+  <div class="rol-title">¿Quién sos?</div>
+  <div class="rol-sub">Elegí tu sección para continuar</div>
+  <div class="rol-grid">
+    <button class="rol-btn" onclick="elegirRol('admin')"><div class="rol-icon">👑</div><div class="rol-name">Admin</div><div class="rol-desc">Todo</div></button>
+    <button class="rol-btn" onclick="elegirRol('entrada')"><div class="rol-icon">🎟️</div><div class="rol-name">Entrada</div><div class="rol-desc">Puerta y anticipadas</div></button>
+    <button class="rol-btn" onclick="elegirRol('barra')"><div class="rol-icon">🍺</div><div class="rol-name">Barra</div><div class="rol-desc">Solo barra</div></button>
+    <button class="rol-btn" onclick="elegirRol('buffet')"><div class="rol-icon">☕</div><div class="rol-name">Buffet</div><div class="rol-desc">Solo buffet</div></button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+
+  <div class="app-header">
+    <div class="app-header-top">
+      <div>
+        <div class="app-title">Milonga del Bicentenario</div>
+        <div class="app-subtitle">El Cachivache · Sábado 18 de abril 2026</div>
+        <div class="rol-chip" id="rol-chip">—</div>
+      </div>
+      <div class="status-pill" id="status-pill"><div class="status-dot"></div><span id="status-text">Conectando...</span></div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+
+    <button class="vtab active" onclick="showView('operacion')">Operación</button>
+    <button class="vtab" onclick="showView('consolidado')">Resumen</button>
+    <button class="vtab" onclick="showView('gastos')">Gastos</button>
+    <button class="vtab" onclick="showView('cierre')">Cierre</button>
+    <button class="vtab" onclick="showView('historial')">Historial</button>
+  </div>
+
+  <!-- ══ OPERACIÓN ══ -->
+  <div class="view active" id="view-operacion">
+
+    <div class="cards" id="global-cards"></div>
+
+    <div class="caja-unica">
+      <span class="cu-label">Caja de cambio $</span>
+      <input type="number" id="cambio" value="0" min="0" step="500" oninput="onCambioChange()" />
+    </div>
+
+    <!-- ANTICIPADAS -->
+    <div class="accordion" id="acc-anticipadas">
+      <div class="acc-header" onclick="toggleAcc('anticipadas')">
+        <span class="acc-title">Anticipadas <span class="acc-badge badge-ant">Organización</span></span>
+        <span class="acc-meta" id="meta-anticipadas"></span>
+        <span class="acc-arrow open" id="arrow-anticipadas">▼</span>
+      </div>
+      <div class="acc-body open" id="body-anticipadas">
+        <div class="sec-label">Anticipadas vendidas (cobradas antes)</div>
+        <div class="ant-grid">
+          <div class="ant-card">
+            <div class="ant-card-label">Sin mesa</div>
+            <div class="ant-counter">
+              <button onclick="chgAnt('sinMesa',-1)">−</button>
+              <span class="qty" id="ant-sinMesa" style="color:var(--gold)">0</span>
+              <button onclick="chgAnt('sinMesa',1)">+</button>
+            </div>
+          </div>
+          <div class="ant-card">
+            <div class="ant-card-label">Con mesa reservada</div>
+            <div class="ant-counter">
+              <button onclick="chgAnt('conMesa',-1)">−</button>
+              <span class="qty" id="ant-conMesa" style="color:var(--gold)">0</span>
+              <button onclick="chgAnt('conMesa',1)">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="ant-total" id="ant-total">Total anticipadas: <span>0</span> personas · <span>$0</span> cobrado</div>
+        <button class="reset-sec" onclick="resetAnt()">Reiniciar anticipadas</button>
+      </div>
+    </div>
+
+    <!-- ENTRADA EN PUERTA -->
+    <div class="accordion" id="acc-entrada">
+      <div class="acc-header" onclick="toggleAcc('entrada')">
+        <span class="acc-title">Entrada en puerta <span class="acc-badge badge-org">Organización</span></span>
+        <span class="acc-meta" id="meta-entrada"></span>
+        <span class="acc-arrow open" id="arrow-entrada">▼</span>
+      </div>
+      <div class="acc-body open" id="body-entrada">
+        <div class="sec-label">Precio de entrada</div>
+        <div class="entrada-price-row">
+          <label>Precio $</label>
+          <input type="number" id="precio-entrada" value="3000" min="0" step="500" oninput="onPrecioEntradaChange()" />
+        </div>
+        <div class="sec-label">Vendidas en puerta</div>
+        <div class="entrada-wrap">
+          <div class="entrada-col">
+            <span class="ec-lbl ef">Efectivo</span>
+            <div class="entrada-counter">
+              <button onclick="chgEntrada('ef',-1)">−</button>
+              <span class="qty ef" id="ent-ef">0</span>
+              <button onclick="chgEntrada('ef',1)">+</button>
+            </div>
+          </div>
+          <div class="entrada-col">
+            <span class="ec-lbl db">Débito</span>
+            <div class="entrada-counter">
+              <button onclick="chgEntrada('db',-1)">−</button>
+              <span class="qty db" id="ent-db">0</span>
+              <button onclick="chgEntrada('db',1)">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="desglose-box" id="entrada-desglose">
+          <div class="desglose-row"><span class="dl">70% → Músicos</span><span id="ent-musicos" style="font-weight:800;color:var(--muted)"></span></div>
+          <div class="desglose-row"><span class="dl">30% → Organización</span><span id="ent-org" style="font-weight:800;color:var(--orange)"></span></div>
+        </div>
+        <button class="reset-sec" onclick="resetEntrada()">Reiniciar entrada en puerta</button>
+      </div>
+    </div>
+
+    <!-- BARRA -->
+    <div class="accordion" id="acc-barra">
+      <div class="acc-header" onclick="toggleAcc('barra')">
+        <span class="acc-title">Barra <span class="acc-badge badge-org">Organización</span></span>
+        <span class="acc-meta" id="meta-barra"></span>
+        <span class="acc-arrow open" id="arrow-barra">▼</span>
+      </div>
+      <div class="acc-body open" id="body-barra">
+        <div class="sec-label">Productos</div>
+        <table class="items">
+          <thead><tr><th>Producto</th><th>Precio</th><th class="c">Efectivo</th><th class="c">Débito</th><th class="r">Subtotal</th><th></th></tr></thead>
+          <tbody id="rows-barra"></tbody>
+        </table>
+        <div class="add-row">
+          <input class="inp-name" id="nn-barra" type="text" placeholder="Producto" />
+          <input class="inp-price" id="np-barra" type="number" placeholder="Precio $" min="0" step="100" />
+          <button class="add-btn" onclick="addItem('barra')">+ Agregar</button>
+        </div>
+        <div class="sec-label">Inversión de barra</div>
+        <div class="inv-row">
+          <span class="inv-label">Invertido $</span>
+          <input type="number" id="inv-barra" value="0" min="0" step="1000" oninput="onInvChange('barra')" />
+          <span class="inv-result" id="res-barra"></span>
+        </div>
+        <button class="reset-sec" onclick="resetSec('barra')">Reiniciar contadores de barra</button>
+      </div>
+    </div>
+
+    <!-- BUFFET -->
+    <div class="accordion" id="acc-buffet">
+      <div class="acc-header" onclick="toggleAcc('buffet')">
+        <span class="acc-title">Buffet <span class="acc-badge badge-buf">Encargada</span></span>
+        <span class="acc-meta" id="meta-buffet"></span>
+        <span class="acc-arrow open" id="arrow-buffet">▼</span>
+      </div>
+      <div class="acc-body open" id="body-buffet">
+        <div class="sec-label">Productos</div>
+        <table class="items">
+          <thead><tr><th>Producto</th><th>Precio</th><th class="c">Efectivo</th><th class="c">Débito</th><th class="r">Subtotal</th><th></th></tr></thead>
+          <tbody id="rows-buffet"></tbody>
+        </table>
+        <div class="add-row">
+          <input class="inp-name" id="nn-buffet" type="text" placeholder="Producto" />
+          <input class="inp-price" id="np-buffet" type="number" placeholder="Precio $" min="0" step="100" />
+          <button class="add-btn" onclick="addItem('buffet')">+ Agregar</button>
+        </div>
+        <div class="sec-label">Inversión de buffet</div>
+        <div class="inv-row">
+          <span class="inv-label">Invertido $</span>
+          <input type="number" id="inv-buffet" value="0" min="0" step="1000" oninput="onInvChange('buffet')" />
+          <span class="inv-result" id="res-buffet"></span>
+        </div>
+        <button class="reset-sec" onclick="resetSec('buffet')">Reiniciar contadores de buffet</button>
+      </div>
+    </div>
+
+  </div><!-- /operacion -->
+
+  <!-- ══ GASTOS ══ -->
+  <div class="view" id="view-gastos">
+    <div class="gasto-form">
+      <div class="gasto-form-title">Registrar gasto</div>
+      <div class="gasto-inputs">
+        <input class="inp-gdesc" id="gasto-desc" type="text" placeholder="Descripción del gasto" />
+        <input class="inp-gmonto" id="gasto-monto" type="number" placeholder="Monto $" min="0" step="100" />
+        <select class="inp-gcat" id="gasto-cat" style="height:38px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);padding:0 10px;font-size:13px;">
+          <option value="Insumos">Insumos</option>
+          <option value="Personal">Personal</option>
+          <option value="Alquiler">Alquiler</option>
+          <option value="Difusión">Difusión</option>
+          <option value="Sonido">Sonido</option>
+          <option value="Varios">Varios</option>
+        </select>
+        <button class="gasto-add-btn" onclick="agregarGasto()">+ Agregar</button>
+      </div>
+    </div>
+
+    <div class="gastos-header">
+      <div style="font-size:15px;font-weight:800;color:var(--text)">Gastos registrados</div>
+      <div class="gastos-total-box">Total: <span id="gastos-total">$0</span></div>
+    </div>
+
+    <div id="gastos-resumen-box" style="display:none" class="gastos-resumen">
+      <div class="gastos-resumen-title">Por categoría</div>
+      <div id="gastos-cat-rows"></div>
+    </div>
+
+    <div id="gastos-list" class="gastos-list">
+      <div class="gastos-empty">Todavía no hay gastos registrados</div>
+    </div>
+  </div>
+
+  <!-- ══ CONSOLIDADO ══ -->
+  <div class="view" id="view-consolidado">
+    <div class="consolidado" id="consolidado-box"></div>
+  </div>
+
+  <!-- ══ CIERRE ══ -->
+  <div class="view" id="view-cierre">
+    <button class="cierre-btn" onclick="generarCierre()">Generar cierre de caja</button>
+    <div id="cierre-output"></div>
+  </div>
+
+  <!-- ══ HISTORIAL ══ -->
+  <div class="view" id="view-historial">
+    <div class="hist-top">
+      <div class="countdown-box">Auto-guardado en <span id="countdown">30:00</span></div>
+      <div class="btn-row">
+        <button class="snap-btn" onclick="takeSnap('manual')">Guardar ahora</button>
+        <button class="clear-btn" onclick="clearHist()">Borrar</button>
+      </div>
+    </div>
+    <table class="hist">
+      <thead>
+        <tr>
+          <th>Hora</th><th></th>
+          <th class="r">Ant.</th>
+          <th class="r">Ef. puerta</th><th class="r">Déb. puerta</th>
+          <th class="r">Ef. barra</th><th class="r">Déb. barra</th>
+          <th class="r">Ef. buffet</th><th class="r">Déb. buffet</th>
+          <th class="r">Total caja</th><th class="r">Resultado</th>
+        </tr>
+      </thead>
+      <tbody id="hist-body">
+        <tr><td colspan="11" class="empty-hist">Todavía no hay registros</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="app-footer">
+    <div class="dev-label">Desarrollado por</div>
+    <div class="morada-brand">La Morada del Nuevo Tango</div>
+    <div class="morada-sub">@lamoradatango · lamoradadeltango.com.ar</div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ── PIN & ROL ──
+var PIN_CORRECTO = '2020';
+var pinActual = '';
+var rolActual = null;
+
+var PERMISOS = {
+  admin:   ['anticipadas','entrada','barra','buffet'],
+  entrada: ['anticipadas','entrada'],
+  barra:   ['barra'],
+  buffet:  ['buffet']
+};
+
+var ROL_LABELS = { admin:'👑 Admin', entrada:'🎟️ Entrada', barra:'🍺 Barra', buffet:'☕ Buffet' };
+
+function pinPress(d) {
+  if (pinActual.length >= 4) return;
+  pinActual += d;
+  renderPinDisplay();
+  if (pinActual.length === 4) setTimeout(checkPin, 120);
+}
+function pinDel() {
+  pinActual = pinActual.slice(0,-1);
+  renderPinDisplay();
+  document.getElementById('pin-error').textContent = '';
+}
+function renderPinDisplay() {
+  var h = '';
+  for (var i=0;i<4;i++) h += i < pinActual.length ? '<span class="dot">●</span>' : '<span class="placeholder">●</span>';
+  document.getElementById('pin-display').innerHTML = h;
+}
+function checkPin() {
+  if (pinActual === PIN_CORRECTO) {
+    document.getElementById('pin-screen').classList.add('hidden');
+    document.getElementById('rol-screen').classList.remove('hidden');
+  } else {
+    document.getElementById('pin-error').textContent = 'PIN incorrecto, intentá de nuevo';
+    pinActual = ''; renderPinDisplay();
+  }
+}
+function elegirRol(rol) {
+  rolActual = rol;
+  document.getElementById('rol-screen').classList.add('hidden');
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('rol-chip').textContent = ROL_LABELS[rol];
+  var perms = PERMISOS[rol];
+  ['anticipadas','entrada','barra','buffet'].forEach(function(sec) {
+    var acc = document.getElementById('acc-' + sec);
+    if (acc) acc.style.display = perms.indexOf(sec) >= 0 ? '' : 'none';
+  });
+  if (rol !== 'admin') {
+    document.querySelectorAll('.vtab').forEach(function(t,i){ if(i>0) t.style.display='none'; });
+  }
+}
+
+// ── FIREBASE ──
+const firebaseConfig = {
+  apiKey: "AIzaSyCY7IZjyicUVnu0HZ1bcMZxR6qXVfxITWk",
+  authDomain: "milonga-bicentenario.firebaseapp.com",
+  databaseURL: "https://milonga-bicentenario-default-rtdb.firebaseio.com",
+  projectId: "milonga-bicentenario",
+  storageBucket: "milonga-bicentenario.firebasestorage.app",
+  messagingSenderId: "416997537369",
+  appId: "1:416997537369:web:065a05f3a9c2dd520ee348"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.database();
+var cajaRef = db.ref('caja2');
+
+var D = {
+  anticipadas: { sinMesa: 0, conMesa: 0 },
+  entrada: { ef: 0, db: 0, precio: 3000 },
+  barra:   { items: [
+    {name:'Cerveza',price:1500,ef:0,db:0},{name:'Vino copa',price:1200,ef:0,db:0},
+    {name:'Fernet',price:2000,ef:0,db:0},{name:'Agua',price:800,ef:0,db:0},{name:'Gaseosa',price:800,ef:0,db:0}
+  ], inv:0 },
+  buffet:  { items: [
+    {name:'Sándwich',price:2500,ef:0,db:0},{name:'Empanada',price:1200,ef:0,db:0},
+    {name:'Tarta porción',price:2000,ef:0,db:0},{name:'Café',price:1000,ef:0,db:0}
+  ], inv:0 },
+  cambio: 0, snaps: [], gastos: []
+};
+
+var secsLeft = 1800;
+var remoteUpdate = false;
+
+db.ref('.info/connected').on('value', function(snap) {
+  var on = snap.val();
+  var pill = document.getElementById('status-pill');
+  var txt  = document.getElementById('status-text');
+  var bar  = document.getElementById('sync-bar');
+  pill.className = 'status-pill' + (on?'':' offline');
+  txt.textContent = on ? 'Sincronizado en tiempo real' : 'Sin conexión';
+  bar.className = 'sync-bar' + (on?'':' offline');
+});
+
+cajaRef.on('value', function(snap) {
+  var val = snap.val();
+  if (!val) { pushToFirebase(); return; }
+  remoteUpdate = true;
+  D.anticipadas.sinMesa = val.ant_sinMesa || 0;
+  D.anticipadas.conMesa = val.ant_conMesa || 0;
+  D.entrada.ef     = val.entrada_ef     || 0;
+  D.entrada.db     = val.entrada_db     || 0;
+  D.entrada.precio = val.entrada_precio || 3000;
+  if (val.barra_items) D.barra.items = JSON.parse(val.barra_items);
+  D.barra.inv = val.barra_inv || 0;
+  if (val.buffet_items) D.buffet.items = JSON.parse(val.buffet_items);
+  D.buffet.inv = val.buffet_inv || 0;
+  D.cambio = val.cambio || 0;
+  if (val.snaps) D.snaps = JSON.parse(val.snaps);
+  if (val.gastos) D.gastos = JSON.parse(val.gastos);
+
+  document.getElementById('precio-entrada').value = D.entrada.precio;
+  document.getElementById('ent-ef').textContent = D.entrada.ef;
+  document.getElementById('ent-db').textContent = D.entrada.db;
+  document.getElementById('ant-sinMesa').textContent = D.anticipadas.sinMesa;
+  document.getElementById('ant-conMesa').textContent = D.anticipadas.conMesa;
+  document.getElementById('cambio').value = D.cambio;
+  document.getElementById('inv-barra').value = D.barra.inv;
+  document.getElementById('inv-buffet').value = D.buffet.inv;
+
+  render(); renderHist(); renderGastos();
+  remoteUpdate = false;
+});
+
+function pushToFirebase() {
+  if (remoteUpdate) return;
+  var bar = document.getElementById('sync-bar');
+  bar.className = 'sync-bar saving';
+  cajaRef.set({
+    ant_sinMesa:    D.anticipadas.sinMesa,
+    ant_conMesa:    D.anticipadas.conMesa,
+    entrada_ef:     D.entrada.ef,
+    entrada_db:     D.entrada.db,
+    entrada_precio: D.entrada.precio,
+    barra_items:    JSON.stringify(D.barra.items),
+    barra_inv:      D.barra.inv,
+    buffet_items:   JSON.stringify(D.buffet.items),
+    buffet_inv:     D.buffet.inv,
+    cambio:         D.cambio,
+    snaps:          JSON.stringify(D.snaps),
+    gastos:         JSON.stringify(D.gastos)
+  }).then(function(){ document.getElementById('sync-bar').className = 'sync-bar'; });
+}
+
+// ── UI ──
+function showView(id) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.querySelectorAll('.vtab').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('view-' + id).classList.add('active');
+  var idx = {operacion:0,consolidado:1,gastos:2,cierre:3,historial:4}[id];
+  document.querySelectorAll('.vtab')[idx].classList.add('active');
+  if (id === 'consolidado') renderConsolidado();
+}
+function toggleAcc(id) {
+  document.getElementById('body-' + id).classList.toggle('open');
+  document.getElementById('arrow-' + id).classList.toggle('open');
+}
+
+// ── ANTICIPADAS ──
+function chgAnt(type, delta) {
+  D.anticipadas[type] = Math.max(0, D.anticipadas[type] + delta);
+  document.getElementById('ant-' + type).textContent = D.anticipadas[type];
+  render(); pushToFirebase();
+}
+function resetAnt() {
+  if (!confirm('Reiniciar anticipadas?')) return;
+  D.anticipadas.sinMesa = 0; D.anticipadas.conMesa = 0;
+  document.getElementById('ant-sinMesa').textContent = '0';
+  document.getElementById('ant-conMesa').textContent = '0';
+  render(); pushToFirebase();
+}
+function calcAnt() {
+  var precio = parseFloat(document.getElementById('precio-entrada').value) || 0;
+  var total  = D.anticipadas.sinMesa + D.anticipadas.conMesa;
+  var monto  = total * precio;
+  return { sinMesa: D.anticipadas.sinMesa, conMesa: D.anticipadas.conMesa, total: total, monto: monto,
+           musicos: Math.round(monto * 0.70), org: Math.round(monto * 0.30) };
+}
+
+// ── ENTRADA PUERTA ──
+function chgEntrada(type, delta) {
+  D.entrada[type] = Math.max(0, D.entrada[type] + delta);
+  document.getElementById('ent-' + type).textContent = D.entrada[type];
+  render(); pushToFirebase();
+}
+function resetEntrada() {
+  if (!confirm('Reiniciar entrada en puerta?')) return;
+  D.entrada.ef = 0; D.entrada.db = 0;
+  document.getElementById('ent-ef').textContent = '0';
+  document.getElementById('ent-db').textContent = '0';
+  render(); pushToFirebase();
+}
+function calcEntrada() {
+  var precio = parseFloat(document.getElementById('precio-entrada').value) || 0;
+  D.entrada.precio = precio;
+  var ef = D.entrada.ef * precio, db = D.entrada.db * precio;
+  var ventas = ef + db;
+  return { ef:ef, db:db, ventas:ventas, units:D.entrada.ef+D.entrada.db,
+           musicos:Math.round(ventas*0.70), org:Math.round(ventas*0.30) };
+}
+
+// ── SECTORES ──
+function chg(sec, i, type, delta) {
+  D[sec].items[i][type] = Math.max(0, D[sec].items[i][type] + delta);
+  render(); pushToFirebase();
+}
+function addItem(sec) {
+  var name = document.getElementById('nn-'+sec).value.trim();
+  var price = parseFloat(document.getElementById('np-'+sec).value) || 0;
+  if (!name) return;
+  D[sec].items.push({name:name,price:price,ef:0,db:0});
+  document.getElementById('nn-'+sec).value = '';
+  document.getElementById('np-'+sec).value = '';
+  render(); pushToFirebase();
+}
+function delItem(sec, i) {
+  if (!confirm('Eliminar "'+D[sec].items[i].name+'"?')) return;
+  D[sec].items.splice(i,1); render(); pushToFirebase();
+}
+function resetSec(sec) {
+  if (!confirm('Reiniciar '+(sec==='barra'?'la barra':'el buffet')+'?')) return;
+  D[sec].items.forEach(function(it){ it.ef=0; it.db=0; }); render(); pushToFirebase();
+}
+function onInvChange(sec) { D[sec].inv = parseFloat(document.getElementById('inv-'+sec).value)||0; render(); pushToFirebase(); }
+function onCambioChange() { D.cambio = parseFloat(document.getElementById('cambio').value)||0; render(); pushToFirebase(); }
+function onPrecioEntradaChange() { D.entrada.precio = parseFloat(document.getElementById('precio-entrada').value)||0; render(); pushToFirebase(); }
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString('es-AR'); }
+
+function calcSec(sec) {
+  var ef=0, db=0, units=0;
+  D[sec].items.forEach(function(it){ ef+=it.price*it.ef; db+=it.price*it.db; units+=it.ef+it.db; });
+  var inv = D[sec].inv;
+  return {ef:ef, db:db, ventas:ef+db, units:units, inv:inv, resultado:ef+db-inv};
+}
+function mkCounter(sec, i, type) {
+  var qty = D[sec].items[i][type];
+  var cls = type==='ef'?'ef':'db', lbl = type==='ef'?'EF':'DB';
+  return '<div class="pay-row"><span class="pay-lbl '+cls+'">'+lbl+'</span>' +
+    '<button onclick="chg(\''+sec+'\','+i+',\''+type+'\',-1)">−</button>' +
+    '<span class="qty '+cls+'">'+qty+'</span>' +
+    '<button onclick="chg(\''+sec+'\','+i+',\''+type+'\',1)">+</button></div>';
+}
+function renderSec(sec) {
+  var c = calcSec(sec);
+  var tbody = document.getElementById('rows-'+sec);
+  tbody.innerHTML = '';
+  D[sec].items.forEach(function(item,i) {
+    var sub = item.price*(item.ef+item.db);
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>'+item.name+'</td><td class="price-cell">'+fmt(item.price)+'</td>' +
+      '<td class="c"><div class="pay-counters">'+mkCounter(sec,i,'ef')+'</div></td>' +
+      '<td class="c"><div class="pay-counters">'+mkCounter(sec,i,'db')+'</div></td>' +
+      '<td class="r sub-cell">'+fmt(sub)+'</td>' +
+      '<td><button class="del-btn" onclick="delItem(\''+sec+'\','+i+')">✕</button></td>';
+    tbody.appendChild(tr);
+  });
+  var resEl = document.getElementById('res-'+sec);
+  if (c.inv > 0) { resEl.className='inv-result '+(c.resultado>=0?'green':'red'); resEl.textContent=(c.resultado>=0?'+':'')+fmt(c.resultado); }
+  else resEl.textContent = '';
+  document.getElementById('meta-'+sec).innerHTML = c.units+' uds · <span class="hi">'+fmt(c.ventas)+'</span>';
+}
+
+function render() {
+  renderSec('barra'); renderSec('buffet');
+  var a = calcAnt(), e = calcEntrada(), b = calcSec('barra'), f = calcSec('buffet');
+  var cambio = D.cambio;
+
+  // anticipadas resumen
+  document.getElementById('ant-total').innerHTML =
+    'Total: <span>'+(a.sinMesa+a.conMesa)+'</span> personas ('+a.sinMesa+' sin mesa · '+a.conMesa+' con mesa) · <span>'+fmt(a.monto)+'</span> cobrado';
+  document.getElementById('meta-anticipadas').innerHTML =
+    a.total+' personas · <span class="hi">'+fmt(a.monto)+'</span>';
+
+  // entrada puerta
+  var desEl = document.getElementById('entrada-desglose');
+  if (e.ventas > 0) {
+    desEl.style.display = 'block';
+    document.getElementById('ent-musicos').textContent = fmt(e.musicos);
+    document.getElementById('ent-org').textContent = fmt(e.org);
+  } else desEl.style.display = 'none';
+  document.getElementById('meta-entrada').innerHTML = e.units+' en puerta · <span class="hi">'+fmt(e.ventas)+'</span>';
+
+  // global
+  var totalEf  = e.ef + b.ef + f.ef;
+  var totalDb  = e.db + b.db + f.db;
+  var totalVentas = e.ventas + b.ventas + f.ventas; // no incluye anticipadas (ya cobradas)
+  var totalCaja   = totalVentas + cambio;
+  var totalRes    = a.org + e.org + b.resultado + f.resultado;
+
+  document.getElementById('global-cards').innerHTML =
+    '<div class="metric"><label>Efectivo</label><div class="val blue">'+fmt(totalEf)+'</div></div>' +
+    '<div class="metric"><label>Débito</label><div class="val purple">'+fmt(totalDb)+'</div></div>' +
+    '<div class="metric"><label>Total en caja</label><div class="val green">'+fmt(totalCaja)+'</div></div>' +
+    '<div class="metric"><label>Resultado</label><div class="val '+(totalRes>=0?'green':'red')+'">'+fmt(totalRes)+'</div></div>';
+}
+
+function renderConsolidado() {
+  var a = calcAnt(), e = calcEntrada(), b = calcSec('barra'), f = calcSec('buffet');
+  var cambio = D.cambio;
+  var orgRes = a.org + e.org + b.resultado;
+  var bufRes = f.resultado;
+  var totalCaja = e.ventas + b.ventas + f.ventas + cambio;
+
+  document.getElementById('consolidado-box').innerHTML =
+    '<h2>Resumen consolidado</h2>' +
+    '<div class="cons-section"><div class="cons-title ant">Anticipadas (cobrado antes)</div>' +
+    '<div class="cons-rows">' +
+    '<div class="cons-row"><span class="lbl">Sin mesa</span><span class="amt">'+a.sinMesa+' personas</span></div>' +
+    '<div class="cons-row"><span class="lbl">Con mesa</span><span class="amt">'+a.conMesa+' personas</span></div>' +
+    '<div class="cons-row"><span class="lbl">Total cobrado</span><span class="amt" style="color:var(--gold)">'+fmt(a.monto)+'</span></div>' +
+    '<div class="cons-row"><span class="lbl">↳ 70% músicos</span><span class="amt" style="color:var(--muted)">−'+fmt(a.musicos)+'</span></div>' +
+    '<div class="cons-row"><span class="lbl">↳ 30% organización</span><span class="amt" style="color:var(--orange)">'+fmt(a.org)+'</span></div>' +
+    '</div></div>' +
+    '<div class="cons-section"><div class="cons-title org">Organización — Puerta + Barra</div>' +
+    '<div class="cons-rows">' +
+    '<div class="cons-row"><span class="lbl">Entrada puerta</span><span class="amt">'+fmt(e.ventas)+'</span></div>' +
+    '<div class="cons-row"><span class="lbl">↳ 30% org</span><span class="amt" style="color:var(--orange)">'+fmt(e.org)+'</span></div>' +
+    '<div class="cons-row"><span class="lbl">Barra ef</span><span class="amt" style="color:var(--blue)">'+fmt(b.ef)+'</span></div>' +
+    '<div class="cons-row"><span class="lbl">Barra déb</span><span class="amt" style="color:var(--purple)">'+fmt(b.db)+'</span></div>' +
+    '<div class="cons-row"><span class="lbl">Inversión barra</span><span class="amt" style="color:var(--red)">−'+fmt(b.inv)+'</span></div>' +
+    '</div><div class="cons-total"><span>Resultado organización</span><span class="amt" style="color:'+(orgRes>=0?'var(--green)':'var(--red)')+'">'+fmt(orgRes)+'</span></div></div>' +
+    '<div class="cons-section"><div class="cons-title buf">Buffet — Encargada</div>' +
+    '<div class="cons-rows">' +
+    '<div class="cons-row"><span class="lbl">Vendido ef</span><span class="amt" style="color:var(--blue)">'+fmt(f.ef)+'</span></div>' +
+    '<div class="cons-row"><span class="lbl">Vendido déb</span><span class="amt" style="color:var(--purple)">'+fmt(f.db)+'</span></div>' +
+    '<div class="cons-row"><span class="lbl">Inversión</span><span class="amt" style="color:var(--red)">−'+fmt(f.inv)+'</span></div>' +
+    '</div><div class="cons-total"><span>Resultado buffet</span><span class="amt" style="color:'+(bufRes>=0?'var(--green)':'var(--red)')+'">'+fmt(bufRes)+'</span></div></div>' +
+    '<div class="cons-section"><div class="cons-rows">' +
+    '<div class="cons-row"><span class="lbl">Caja de cambio</span><span class="amt">'+fmt(cambio)+'</span></div>' +
+    '<div class="cons-row"><span class="lbl">Recaudado en el evento</span><span class="amt">'+fmt(e.ventas+b.ventas+f.ventas)+'</span></div>' +
+    '</div><div class="cons-total"><span>Total físico en caja</span><span class="amt" style="color:var(--green)">'+fmt(totalCaja)+'</span></div></div>';
+}
+
+function generarCierre() {
+  var a = calcAnt(), e = calcEntrada(), b = calcSec('barra'), f = calcSec('buffet');
+  var cambio = D.cambio, precioEnt = D.entrada.precio;
+  var orgRes = a.org + e.org + b.resultado, bufRes = f.resultado;
+  var totalCaja = e.ventas + b.ventas + f.ventas + cambio;
+  var ahora = new Date().toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'});
+
+  document.getElementById('cierre-output').innerHTML =
+    '<div class="cierre-box"><h2>Cierre de caja</h2><div class="cierre-sub">'+ahora+'</div>' +
+    '<div class="cierre-section"><div class="cierre-section-title">Anticipadas</div>' +
+    '<div class="cierre-line"><span class="lbl">Sin mesa</span><span class="amt gold">'+a.sinMesa+' personas</span></div>' +
+    '<div class="cierre-line"><span class="lbl">Con mesa</span><span class="amt gold">'+a.conMesa+' personas</span></div>' +
+    '<div class="cierre-line"><span class="lbl">Total cobrado</span><span class="amt">'+fmt(a.monto)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">70% músicos</span><span class="amt" style="color:var(--muted)">'+fmt(a.musicos)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">30% organización</span><span class="amt" style="color:var(--orange)">'+fmt(a.org)+'</span></div>' +
+    '</div>' +
+    '<div class="cierre-section"><div class="cierre-section-title">Entrada en puerta</div>' +
+    '<div class="cierre-line"><span class="lbl">'+D.entrada.ef+' efectivo</span><span class="amt blue">'+fmt(e.ef)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">'+D.entrada.db+' débito</span><span class="amt purple">'+fmt(e.db)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">70% músicos</span><span class="amt" style="color:var(--muted)">'+fmt(e.musicos)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">30% organización</span><span class="amt" style="color:var(--orange)">'+fmt(e.org)+'</span></div>' +
+    '</div>' +
+    '<div class="cierre-section"><div class="cierre-section-title">Barra (organización)</div>' +
+    '<div class="cierre-line"><span class="lbl">Efectivo</span><span class="amt blue">'+fmt(b.ef)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">Débito</span><span class="amt purple">'+fmt(b.db)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">Inversión</span><span class="amt red">−'+fmt(b.inv)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">Resultado</span><span class="amt '+(b.resultado>=0?'green':'red')+'">'+fmt(b.resultado)+'</span></div>' +
+    '</div>' +
+    '<div class="cierre-section"><div class="cierre-section-title">Buffet (encargada)</div>' +
+    '<div class="cierre-line"><span class="lbl">Efectivo</span><span class="amt blue">'+fmt(f.ef)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">Débito</span><span class="amt purple">'+fmt(f.db)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">Inversión</span><span class="amt red">−'+fmt(f.inv)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">Resultado</span><span class="amt '+(bufRes>=0?'green':'red')+'">'+fmt(bufRes)+'</span></div>' +
+    '</div>' +
+    '<div class="cierre-section"><div class="cierre-section-title">Resultado organización total</div>' +
+    '<div class="cierre-line"><span class="lbl">Ant. 30% + puerta 30% + barra</span><span class="amt '+(orgRes>=0?'green':'red')+'">'+fmt(orgRes)+'</span></div>' +
+    '</div>' +
+    (D.gastos.length ? (function(){
+      var totalGastos = D.gastos.reduce(function(s,g){return s+g.monto;},0);
+      var cats = {};
+      D.gastos.forEach(function(g){ cats[g.cat]=(cats[g.cat]||0)+g.monto; });
+      var lines = Object.keys(cats).map(function(k){
+        return '<div class="cierre-line"><span class="lbl">'+k+'</span><span class="amt red">−'+fmt(cats[k])+'</span></div>';
+      }).join('');
+      return '<div class="cierre-section"><div class="cierre-section-title">Gastos ('+D.gastos.length+' registros)</div>' +
+        lines +
+        '<div class="cierre-line"><span class="lbl" style="font-weight:700">Total gastos</span><span class="amt red" style="font-weight:800">−'+fmt(totalGastos)+'</span></div>' +
+        '</div>';
+    })() : '') +
+    '<div class="cierre-section"><div class="cierre-section-title">Caja física</div>' +
+    '<div class="cierre-line"><span class="lbl">Caja de cambio</span><span class="amt">'+fmt(cambio)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">Recaudado evento</span><span class="amt">'+fmt(e.ventas+b.ventas+f.ventas)+'</span></div>' +
+    '</div>' +
+    '<div class="cierre-grand"><span>Total en caja</span><span class="amt '+(totalCaja>=0?'green':'red')+'">'+fmt(totalCaja)+'</span></div>' +
+    '<div class="cierre-timestamp">Desarrollado por La Morada del Nuevo Tango</div>' +
+    '<button class="wsp-btn" onclick="enviarWhatsApp()">' +
+    '<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>' +
+    'Compartir por WhatsApp</button></div>';
+
+  window._cierreTexto = [
+    '🎶 *CIERRE DE CAJA*','Milonga del Bicentenario · El Cachivache','18 de abril 2026 · '+ahora,'',
+    '🎫 *ANTICIPADAS*',
+    '  Sin mesa: '+a.sinMesa+' · Con mesa: '+a.conMesa,
+    '  Total cobrado: '+fmt(a.monto),
+    '  70% músicos: '+fmt(a.musicos)+'  |  30% org: '+fmt(a.org),'',
+    '🎟️ *ENTRADA EN PUERTA* ($'+Math.round(precioEnt).toLocaleString('es-AR')+')',
+    '  Efectivo: '+D.entrada.ef+' → '+fmt(e.ef),
+    '  Débito: '+D.entrada.db+' → '+fmt(e.db),
+    '  70% músicos: '+fmt(e.musicos)+'  |  30% org: '+fmt(e.org),'',
+    '🍺 *BARRA*',
+    '  Efectivo: '+fmt(b.ef)+'  Débito: '+fmt(b.db),
+    '  Inversión: −'+fmt(b.inv)+'  Resultado: '+fmt(b.resultado),'',
+    '☕ *BUFFET*',
+    '  Efectivo: '+fmt(f.ef)+'  Débito: '+fmt(f.db),
+    '  Inversión: −'+fmt(f.inv)+'  Resultado: '+fmt(bufRes),'',
+    '📊 *RESULTADO ORGANIZACIÓN: '+fmt(orgRes)+'*','',
+    (function(){
+      if (!D.gastos.length) return '';
+      var totalGastos = D.gastos.reduce(function(s,g){return s+g.monto;},0);
+      var cats = {};
+      D.gastos.forEach(function(g){ cats[g.cat]=(cats[g.cat]||0)+g.monto; });
+      return '💸 *GASTOS ('+D.gastos.length+')*\n' +
+        Object.keys(cats).map(function(k){ return '  '+k+': −'+fmt(cats[k]); }).join('\n') + '\n' +
+        '  Total: −'+fmt(totalGastos)+'\n';
+    })(),
+    '💵 *CAJA FÍSICA*',
+    '  Cambio: '+fmt(cambio)+'  Recaudado: '+fmt(e.ventas+b.ventas+f.ventas),
+    '  *TOTAL EN CAJA: '+fmt(totalCaja)+'*','',
+    '_Desarrollado por La Morada del Nuevo Tango_'
+  ].join('\n');
+}
+
+function enviarWhatsApp() {
+  if (!window._cierreTexto) return;
+  window.open('https://wa.me/?text='+encodeURIComponent(window._cierreTexto),'_blank');
+}
+
+function takeSnap(type) {
+  var a = calcAnt(), e = calcEntrada(), b = calcSec('barra'), f = calcSec('buffet');
+  var hora = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  D.snaps.push({ hora:hora, type:type,
+    ant:a.total, eEf:e.ef, eDb:e.db, bEf:b.ef, bDb:b.db, fEf:f.ef, fDb:f.db,
+    total: e.ventas+b.ventas+f.ventas+D.cambio,
+    res: a.org+e.org+b.resultado+f.resultado
+  });
+  if (type==='manual') secsLeft=1800;
+  pushToFirebase(); renderHist();
+}
+
+function renderHist() {
+  var tbody = document.getElementById('hist-body');
+  if (!D.snaps.length) { tbody.innerHTML='<tr><td colspan="11" class="empty-hist">Todavía no hay registros</td></tr>'; return; }
+  tbody.innerHTML = '';
+  D.snaps.slice().reverse().forEach(function(s) {
+    var badge='<span class="badge '+s.type+'">'+(s.type==='auto'?'AUTO':'MANUAL')+'</span>';
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><strong>'+s.hora+'</strong></td><td>'+badge+'</td>' +
+      '<td class="r" style="color:var(--gold)">'+s.ant+'</td>' +
+      '<td class="r" style="color:var(--blue)">'+fmt(s.eEf)+'</td><td class="r" style="color:var(--purple)">'+fmt(s.eDb)+'</td>' +
+      '<td class="r" style="color:var(--blue)">'+fmt(s.bEf)+'</td><td class="r" style="color:var(--purple)">'+fmt(s.bDb)+'</td>' +
+      '<td class="r" style="color:var(--blue)">'+fmt(s.fEf)+'</td><td class="r" style="color:var(--purple)">'+fmt(s.fDb)+'</td>' +
+      '<td class="r"><strong>'+fmt(s.total)+'</strong></td>' +
+      '<td class="r" style="color:'+(s.res>=0?'var(--green)':'var(--red)')+'"><strong>'+fmt(s.res)+'</strong></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function clearHist() {
+  if (!confirm('Borrar todo el historial?')) return;
+  D.snaps = []; pushToFirebase(); renderHist();
+}
+
+// ── GASTOS ──
+function agregarGasto() {
+  var desc  = document.getElementById('gasto-desc').value.trim();
+  var monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
+  var cat   = document.getElementById('gasto-cat').value;
+  if (!desc || monto <= 0) { alert('Completá la descripción y el monto'); return; }
+  var hora = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  D.gastos.push({ id: Date.now(), desc: desc, monto: monto, cat: cat, hora: hora });
+  document.getElementById('gasto-desc').value = '';
+  document.getElementById('gasto-monto').value = '';
+  renderGastos(); pushToFirebase();
+}
+
+function eliminarGasto(id) {
+  if (!confirm('Eliminar este gasto?')) return;
+  D.gastos = D.gastos.filter(function(g){ return g.id !== id; });
+  renderGastos(); pushToFirebase();
+}
+
+function renderGastos() {
+  var list  = document.getElementById('gastos-list');
+  var total = D.gastos.reduce(function(s,g){ return s+g.monto; }, 0);
+  document.getElementById('gastos-total').textContent = fmt(total);
+
+  // Por categoría
+  var cats = {};
+  D.gastos.forEach(function(g){ cats[g.cat] = (cats[g.cat]||0) + g.monto; });
+  var catKeys = Object.keys(cats);
+  var resBox = document.getElementById('gastos-resumen-box');
+  resBox.style.display = catKeys.length > 1 ? '' : 'none';
+  var catRows = document.getElementById('gastos-cat-rows');
+  catRows.innerHTML = catKeys.map(function(k){
+    return '<div class="gasto-cat-row"><span class="lbl">'+k+'</span><span class="amt">'+fmt(cats[k])+'</span></div>';
+  }).join('');
+
+  if (!D.gastos.length) {
+    list.innerHTML = '<div class="gastos-empty">Todavía no hay gastos registrados</div>';
+    return;
+  }
+  list.innerHTML = '';
+  D.gastos.slice().reverse().forEach(function(g) {
+    var div = document.createElement('div');
+    div.className = 'gasto-item';
+    div.innerHTML =
+      '<div class="gasto-item-left">' +
+        '<div class="gasto-desc">'+g.desc+'</div>' +
+        '<div class="gasto-meta"><span class="gasto-cat-pill">'+g.cat+'</span><span>'+g.hora+'</span></div>' +
+      '</div>' +
+      '<div class="gasto-monto">−'+fmt(g.monto)+'</div>' +
+      '<button class="gasto-del" onclick="eliminarGasto('+g.id+')">✕</button>';
+    list.appendChild(div);
+  });
+}
+
+setInterval(function() {
+  secsLeft--;
+  if (secsLeft<=0) { takeSnap('auto'); secsLeft=1800; }
+  var m=Math.floor(secsLeft/60), s=secsLeft%60;
+  var el=document.getElementById('countdown');
+  if (el) el.textContent=m+':'+(s<10?'0':'')+s;
+},1000);
+</script>
+</body>
+</html>
