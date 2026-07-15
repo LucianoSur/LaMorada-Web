@@ -1,0 +1,130 @@
+
+<style>
+.board { padding: 1.5rem 0; }
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.header h2 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin: 0; }
+.week-label { font-size: 13px; color: var(--color-text-secondary); background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 4px 10px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; }
+.stat-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.stat-val { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+.tasks { display: flex; flex-direction: column; gap: 8px; }
+.task { display: flex; align-items: flex-start; gap: 12px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 14px; cursor: pointer; transition: border-color 0.15s; }
+.task:hover { border-color: var(--color-border-secondary); }
+.task.done { opacity: 0.5; }
+.task.done .task-text { text-decoration: line-through; color: var(--color-text-secondary); }
+.check { width: 20px; height: 20px; min-width: 20px; border-radius: 50%; border: 1.5px solid var(--color-border-secondary); display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: background 0.15s, border-color 0.15s; }
+.task.done .check { background: var(--color-background-success); border-color: var(--color-border-success); }
+.task.done .check i { color: var(--color-text-success); }
+.task-body { flex: 1; min-width: 0; }
+.task-text { font-size: 14px; color: var(--color-text-primary); line-height: 1.45; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; margin-top: 5px; }
+.badge-infra { background: #E6F1FB; color: #0C447C; }
+.badge-deposito { background: #EAF3DE; color: #27500A; }
+.badge-sistemas { background: #EEEDFE; color: #3C3489; }
+.badge-impresoras { background: #FAEEDA; color: #633806; }
+.badge-usuarios { background: #E1F5EE; color: #085041; }
+.badge-soporte { background: #FBEAF0; color: #72243E; }
+.badge-tutoriales { background: #FAECE7; color: #712B13; }
+.badge-glpi { background: #F1EFE8; color: #444441; }
+.task-num { font-size: 12px; color: var(--color-text-tertiary); min-width: 18px; margin-top: 2px; }
+</style>
+
+<div class="board">
+  <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden">Pendientes para la semana del 12 de mayo</h2>
+  <div class="header">
+    <h2>Pendientes — semana del 12 al 16 de mayo</h2>
+    <span class="week-label" id="week-label">0 / 9 listos</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Total</div><div class="stat-val">9</div></div>
+    <div class="stat"><div class="stat-label">Completadas</div><div class="stat-val" id="done-count">0</div></div>
+    <div class="stat"><div class="stat-label">Pendientes</div><div class="stat-val" id="pending-count">9</div></div>
+  </div>
+  <div class="tasks" id="tasks">
+    <div class="task" data-id="1" onclick="toggle(1)">
+      <span class="task-num">1</span>
+      <div class="check"><i class="ti ti-check" style="font-size:12px"></i></div>
+      <div class="task-body">
+        <div class="task-text">Completar relevo de PCs — piso 7 y piso 3</div>
+        <span class="badge badge-infra">infraestructura</span>
+      </div>
+    </div>
+    <div class="task" data-id="2" onclick="toggle(2)">
+      <span class="task-num">2</span>
+      <div class="check"><i class="ti ti-check" style="font-size:12px"></i></div>
+      <div class="task-body">
+        <div class="task-text">Ordenar el depósito de abajo — garantizar pallets y estanterías</div>
+        <span class="badge badge-deposito">depósito</span>
+      </div>
+    </div>
+    <div class="task" data-id="3" onclick="toggle(3)">
+      <span class="task-num">3</span>
+      <div class="check"><i class="ti ti-check" style="font-size:12px"></i></div>
+      <div class="task-body">
+        <div class="task-text">Sistema de inventario — dar accesos y tutorial de uso</div>
+        <span class="badge badge-sistemas">sistemas</span>
+      </div>
+    </div>
+    <div class="task" data-id="4" onclick="toggle(4)">
+      <span class="task-num">4</span>
+      <div class="check"><i class="ti ti-check" style="font-size:12px"></i></div>
+      <div class="task-body">
+        <div class="task-text">Terminar dimensionamiento de impresoras — pasar por INAL</div>
+        <span class="badge badge-impresoras">impresoras</span>
+      </div>
+    </div>
+    <div class="task" data-id="5" onclick="toggle(5)">
+      <span class="task-num">5</span>
+      <div class="check"><i class="ti ti-check" style="font-size:12px"></i></div>
+      <div class="task-body">
+        <div class="task-text">Hablar con INAL e INAME — relevamiento de teclados, monitores y scanners</div>
+        <span class="badge badge-usuarios">usuarios</span>
+      </div>
+    </div>
+    <div class="task" data-id="6" onclick="toggle(6)">
+      <span class="task-num">6</span>
+      <div class="check"><i class="ti ti-check" style="font-size:12px"></i></div>
+      <div class="task-body">
+        <div class="task-text">Preparar un vento para cada integrante de soporte con los programas más usados</div>
+        <span class="badge badge-soporte">soporte</span>
+      </div>
+    </div>
+    <div class="task" data-id="7" onclick="toggle(7)">
+      <span class="task-num">7</span>
+      <div class="check"><i class="ti ti-check" style="font-size:12px"></i></div>
+      <div class="task-body">
+        <div class="task-text">Plan para grabar tutoriales — instalaciones complejas (REM, Adobe, Tango)</div>
+        <span class="badge badge-tutoriales">tutoriales</span>
+      </div>
+    </div>
+    <div class="task" data-id="8" onclick="toggle(8)">
+      <span class="task-num">8</span>
+      <div class="check"><i class="ti ti-check" style="font-size:12px"></i></div>
+      <div class="task-body">
+        <div class="task-text">Avanzar en GLPI</div>
+        <span class="badge badge-glpi">GLPI</span>
+      </div>
+    </div>
+    <div class="task" data-id="9" onclick="toggle(9)">
+      <span class="task-num">9</span>
+      <div class="check"><i class="ti ti-check" style="font-size:12px"></i></div>
+      <div class="task-body">
+        <div class="task-text">Avanzar (pendiente por definir)</div>
+        <span class="badge badge-glpi">por definir</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const done = new Set();
+function toggle(id) {
+  done.has(id) ? done.delete(id) : done.add(id);
+  document.querySelector(`[data-id="${id}"]`).classList.toggle('done');
+  const d = done.size, t = 9;
+  document.getElementById('done-count').textContent = d;
+  document.getElementById('pending-count').textContent = t - d;
+  document.getElementById('week-label').textContent = d + ' / ' + t + ' listos';
+}
+</script>

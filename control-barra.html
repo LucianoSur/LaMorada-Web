@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Control de Caja — Milonga del Bicentenario</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
@@ -350,6 +353,7 @@ table.hist tr:last-child td { border-bottom: none; }
         <div class="rol-chip" id="rol-chip">—</div>
       </div>
       <div class="status-pill" id="status-pill"><div class="status-dot"></div><span id="status-text">Conectando...</span></div>
+      <button id="btn-refresh" onclick="forzarSync()" title="Forzar actualización" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;width:30px;height:30px;font-size:15px;cursor:pointer;flex-shrink:0;">↻</button>
     </div>
   </div>
 
@@ -675,10 +679,10 @@ db.ref('.info/connected').on('value', function(snap) {
   pill.className = 'status-pill' + (on?'':' offline');
   txt.textContent = on ? 'Sincronizado en tiempo real' : 'Sin conexión';
   bar.className = 'sync-bar' + (on?'':' offline');
+  if (on) forzarSync(); // al reconectar, traemos el dato más nuevo por las dudas
 });
 
-cajaRef.on('value', function(snap) {
-  var val = snap.val();
+function aplicarDatosRemotos(val) {
   if (!val) { pushToFirebase(); return; }
   remoteUpdate = true;
   D.anticipadas.sinMesa = val.ant_sinMesa || 0;
@@ -705,7 +709,25 @@ cajaRef.on('value', function(snap) {
 
   render(); renderHist(); renderGastos();
   remoteUpdate = false;
+}
+
+cajaRef.on('value', function(snap) { aplicarDatosRemotos(snap.val()); });
+
+// ── RESYNC FORZADO ──
+// Los celulares suspenden la conexión en tiempo real cuando la pantalla se
+// bloquea o la app pasa a segundo plano. El cartel de estado puede quedar
+// desactualizado. Por eso, apenas la pestaña vuelve a estar visible,
+// forzamos una lectura fresca en vez de confiar en que el socket siguió vivo.
+function forzarSync() {
+  cajaRef.once('value', function(snap){ aplicarDatosRemotos(snap.val()); }).catch(function(err){
+    console.error('Error al resincronizar:', err);
+  });
+}
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') forzarSync();
 });
+window.addEventListener('focus', forzarSync);
+window.addEventListener('pageshow', forzarSync);
 
 function pushToFirebase() {
   if (remoteUpdate) return;
@@ -724,7 +746,17 @@ function pushToFirebase() {
     cambio:         D.cambio,
     snaps:          JSON.stringify(D.snaps),
     gastos:         JSON.stringify(D.gastos)
-  }).then(function(){ document.getElementById('sync-bar').className = 'sync-bar'; });
+  }).then(function(){
+    document.getElementById('sync-bar').className = 'sync-bar';
+  }).catch(function(err){
+    console.error('Error al guardar en Firebase:', err);
+    document.getElementById('sync-bar').className = 'sync-bar offline';
+    var pill = document.getElementById('status-pill');
+    var txt  = document.getElementById('status-text');
+    pill.className = 'status-pill offline';
+    txt.textContent = 'Error al guardar: ' + err.code;
+    alert('No se pudo guardar el cambio en la base de datos.\n\nMotivo: ' + err.code + ' — ' + err.message + '\n\nEste cambio quedó solo en tu pantalla y NO se sincronizó con los demás dispositivos. Avisá al administrador para revisar las reglas de Firebase.');
+  });
 }
 
 // ── UI ──

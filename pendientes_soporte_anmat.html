@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pendientes — Soporte ANMAT</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F4F3EF; --surface: #FFFFFF; --surface2: #ECEAE4;
+    --border: #D5D2C8; --border-strong: #B8B5AB;
+    --text: #1A1916; --text-muted: #6B6860; --text-faint: #9E9C96;
+    --accent: #1A3A6B; --accent-light: #E8EDF5; --accent-mid: #3A5A99;
+    --green: #1A5C3A; --green-light: #E4F0E9;
+    --amber: #7A4A0A; --amber-light: #F5EDD8;
+    --font-sans: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  body { font-family: var(--font-sans); background: var(--bg); color: var(--text); min-height: 100vh; padding: 40px 24px 80px; }
+  .page { max-width: 900px; margin: 0 auto; }
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; border-bottom: 1.5px solid var(--accent); padding-bottom: 20px; margin-bottom: 28px; gap: 16px; flex-wrap: wrap; }
+  .org-label { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-mid); margin-bottom: 6px; }
+  .page-title { font-size: 28px; font-weight: 600; color: var(--text); line-height: 1.15; }
+  .page-sub { font-size: 13px; color: var(--text-muted); margin-top: 5px; font-weight: 300; }
+  .page-sub em { font-style: normal; color: var(--text-faint); font-family: var(--font-mono); font-size: 11px; }
+  .header-badge { background: var(--accent); color: #fff; font-family: var(--font-mono); font-size: 11px; padding: 6px 14px; border-radius: 2px; white-space: nowrap; margin-top: 4px; letter-spacing: 0.05em; }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 14px 18px; }
+  .stat-card.accent { background: var(--accent); border-color: var(--accent); }
+  .stat-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 5px; }
+  .stat-card.accent .stat-label { color: rgba(255,255,255,0.5); }
+  .stat-val { font-size: 30px; font-weight: 600; color: var(--text); line-height: 1; }
+  .stat-card.accent .stat-val { color: #fff; }
+  .progress-wrap { margin-bottom: 24px; }
+  .progress-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .progress-track { height: 5px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); }
+  .team-note { background: var(--accent-light); border-left: 3px solid var(--accent); border-radius: 0 4px 4px 0; padding: 10px 14px; font-size: 12px; color: var(--accent); font-family: var(--font-mono); letter-spacing: 0.02em; margin-bottom: 24px; }
+  .section-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px; padding-left: 2px; }
+  .tasks { display: flex; flex-direction: column; gap: 6px; }
+  .task { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; cursor: pointer; transition: border-color 0.15s, opacity 0.2s; }
+  .task:hover { border-color: var(--border-strong); }
+  .task.done { background: var(--surface2); opacity: 0.6; }
+  .task-index { font-family: var(--font-mono); font-size: 11px; color: var(--text-faint); min-width: 20px; padding-top: 2px; user-select: none; }
+  .check-box { width: 18px; height: 18px; min-width: 18px; border: 1.5px solid var(--border-strong); border-radius: 2px; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: background 0.15s, border-color 0.15s; flex-shrink: 0; }
+  .task.done .check-box { background: var(--accent); border-color: var(--accent); }
+  .check-svg { display: none; }
+  .task.done .check-svg { display: block; }
+  .task-body { flex: 1; min-width: 0; }
+  .task-text { font-size: 14px; color: var(--text); line-height: 1.5; font-weight: 400; }
+  .task.done .task-text { text-decoration: line-through; color: var(--text-faint); }
+  .task-meta { display: flex; align-items: center; gap: 8px; margin-top: 7px; flex-wrap: wrap; }
+  .tag { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 2px; font-weight: 500; }
+  .tag-infra { background: var(--accent-light); color: var(--accent); }
+  .tag-deposito { background: var(--green-light); color: var(--green); }
+  .tag-sistemas { background: #EEF0F8; color: #2A3F80; }
+  .tag-impresoras { background: var(--amber-light); color: var(--amber); }
+  .tag-usuarios { background: var(--green-light); color: var(--green); }
+  .tag-soporte { background: #F5EAF0; color: #6B2060; }
+  .tag-tutoriales { background: var(--amber-light); color: var(--amber); }
+  .tag-glpi { background: var(--surface2); color: var(--text-muted); }
+  .resp-block { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .resp-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); letter-spacing: 0.04em; }
+  .chip { display: inline-flex; align-items: center; border-radius: 99px; padding: 2px 10px 2px 10px; font-size: 11px; font-weight: 500; border: 1.5px solid transparent; white-space: nowrap; }
+  .chip.lead { border-width: 2px; }
+  .chip-luis    { background: #E8EDF5; color: #1A3A6B; border-color: #B0C0DC; }
+  .chip-leo     { background: #E4F0E9; color: #1A5C3A; border-color: #A0CCB0; }
+  .chip-fer     { background: #F5EDD8; color: #7A4A0A; border-color: #D4B880; }
+  .chip-lucho   { background: #F5EAF0; color: #6B2060; border-color: #D4A0C0; }
+  .chip-gerardo { background: #FAECE7; color: #7A2A1A; border-color: #D4A090; }
+  .chip-todos   { background: var(--surface2); color: var(--text-muted); border-color: var(--border); }
+  .meta-divider { width: 1px; height: 14px; background: var(--border); flex-shrink: 0; }
+  .footer { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .footer-left { font-family: var(--font-mono); font-size: 11px; color: var(--text-faint); }
+  .reset-btn { font-family: var(--font-mono); font-size: 11px; background: none; border: 1px solid var(--border); border-radius: 2px; padding: 6px 14px; color: var(--text-muted); cursor: pointer; letter-spacing: 0.06em; transition: border-color 0.15s, color 0.15s; }
+  .reset-btn:hover { border-color: var(--border-strong); color: var(--text); }
+  .carga-section { margin-top: 36px; }
+  .carga-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .carga-row { display: flex; align-items: center; gap: 12px; }
+  .carga-nombre { font-size: 13px; font-weight: 500; color: var(--text); min-width: 80px; }
+  .carga-bar-wrap { flex: 1; height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .carga-bar { height: 100%; border-radius: 99px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+  .carga-nums { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); min-width: 72px; text-align: right; }
+  .carga-badge { font-family: var(--font-mono); font-size: 10px; padding: 2px 7px; border-radius: 2px; margin-left: 4px; }
+  .badge-high { background: #F5EDD8; color: #7A4A0A; }
+  .badge-mid  { background: var(--accent-light); color: var(--accent); }
+  .badge-low  { background: var(--surface2); color: var(--text-muted); }
+  @media print { body { background: white; padding: 20px; } .reset-btn { display: none; } .task { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-header">
+    <div>
+      <div class="org-label">ANMAT — Área de Soporte Técnico</div>
+      <h1 class="page-title">Pendientes de la semana</h1>
+      <p class="page-sub">
+        Semana del 12 al 16 de mayo de 2025 &nbsp;·&nbsp;
+        <em>cada tarea tiene un responsable, el equipo colabora en conjunto</em>
+      </p>
+    </div>
+    <div class="header-badge" id="header-badge">0 / 9 completadas</div>
+  </header>
+
+  <div class="stats-row">
+    <div class="stat-card accent">
+      <div class="stat-label">Total de tareas</div>
+      <div class="stat-val">9</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Completadas</div>
+      <div class="stat-val" id="done-count">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pendientes</div>
+      <div class="stat-val" id="pending-count">9</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-meta"><span>Progreso semanal</span><span id="pct-label">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="team-note">★ &nbsp;El responsable lidera cada tarea. El equipo completo colabora cuando hace falta.</div>
+
+  <div class="section-label">Tareas — clic para marcar como completada</div>
+
+  <div class="tasks">
+
+    <div class="task" data-id="1" onclick="toggle(1)">
+      <span class="task-index">01</span>
+      <div class="check-box"><svg class="check-svg" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-text">Completar relevamiento de PCs — piso 7</div>
+        <div class="task-meta">
+          <span class="tag tag-infra">infraestructura</span>
+          <div class="meta-divider"></div>
+          <div class="resp-block">
+            <span class="resp-label">resp.</span>
+            <span class="chip chip-luis lead">Luis</span>
+            <span class="chip chip-leo">Leo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-id="2" onclick="toggle(2)">
+      <span class="task-index">02</span>
+      <div class="check-box"><svg class="check-svg" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-text">Completar relevamiento de PCs — piso 3</div>
+        <div class="task-meta">
+          <span class="tag tag-infra">infraestructura</span>
+          <div class="meta-divider"></div>
+          <div class="resp-block">
+            <span class="resp-label">resp.</span>
+            <span class="chip chip-fer lead">Fer</span>
+            <span class="chip chip-lucho">Lucho</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-id="3" onclick="toggle(3)">
+      <span class="task-index">03</span>
+      <div class="check-box"><svg class="check-svg" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-text">Ordenar el depósito — garantizar pallets y estanterías en condiciones</div>
+        <div class="task-meta">
+          <span class="tag tag-deposito">depósito</span>
+          <div class="meta-divider"></div>
+          <div class="resp-block">
+            <span class="resp-label">gestión</span>
+            <span class="chip chip-gerardo lead">Gerardo</span>
+            <span class="resp-label" style="margin-left:2px">+ equipo</span>
+            <span class="chip chip-todos">Todos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-id="4" onclick="toggle(4)">
+      <span class="task-index">04</span>
+      <div class="check-box"><svg class="check-svg" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-text">Sistema de inventario — dar accesos y tutorial de uso</div>
+        <div class="task-meta">
+          <span class="tag tag-sistemas">sistemas</span>
+          <div class="meta-divider"></div>
+          <div class="resp-block">
+            <span class="resp-label">resp.</span>
+            <span class="chip chip-luis lead">Luis</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-id="5" onclick="toggle(5)">
+      <span class="task-index">05</span>
+      <div class="check-box"><svg class="check-svg" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-text">Terminar dimensionamiento de impresoras</div>
+        <div class="task-meta">
+          <span class="tag tag-impresoras">impresoras</span>
+          <div class="meta-divider"></div>
+          <div class="resp-block">
+            <span class="resp-label">resp.</span>
+            <span class="chip chip-lucho lead">Lucho</span>
+            <span class="chip chip-gerardo">Gerardo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-id="6" onclick="toggle(6)">
+      <span class="task-index">06</span>
+      <div class="check-box"><svg class="check-svg" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-text">Hablar con INAL e INAME — relevamiento de teclados, monitores y scanners necesarios</div>
+        <div class="task-meta">
+          <span class="tag tag-usuarios">usuarios</span>
+          <div class="meta-divider"></div>
+          <div class="resp-block">
+            <span class="resp-label">resp.</span>
+            <span class="chip chip-lucho lead">Lucho</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-id="7" onclick="toggle(7)">
+      <span class="task-index">07</span>
+      <div class="check-box"><svg class="check-svg" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-text">Preparar un vento por integrante — imagen de Windows + programas más usados</div>
+        <div class="task-meta">
+          <span class="tag tag-soporte">soporte</span>
+          <div class="meta-divider"></div>
+          <div class="resp-block">
+            <span class="resp-label">resp.</span>
+            <span class="chip chip-gerardo lead">Gerardo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-id="8" onclick="toggle(8)">
+      <span class="task-index">08</span>
+      <div class="check-box"><svg class="check-svg" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-text">Armar plan de grabación de tutoriales — instalaciones clave: REM, Tango, Adobe</div>
+        <div class="task-meta">
+          <span class="tag tag-tutoriales">tutoriales</span>
+          <div class="meta-divider"></div>
+          <div class="resp-block">
+            <span class="resp-label">resp.</span>
+            <span class="chip chip-lucho lead">Lucho</span>
+            <span class="chip chip-fer">Fer</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" data-id="9" onclick="toggle(9)">
+      <span class="task-index">09</span>
+      <div class="check-box"><svg class="check-svg" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-text">Avanzar en GLPI</div>
+        <div class="task-meta">
+          <span class="tag tag-glpi">GLPI</span>
+          <div class="meta-divider"></div>
+          <div class="resp-block">
+            <span class="resp-label">todos</span>
+            <span class="chip chip-luis">Luis</span>
+            <span class="chip chip-leo">Leo</span>
+            <span class="chip chip-fer">Fer</span>
+            <span class="chip chip-lucho">Lucho</span>
+            <span class="chip chip-gerardo">Gerardo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="carga-section">
+    <div class="section-label">Carga por integrante</div>
+    <div class="carga-grid">
+      <div class="carga-row">
+        <span class="carga-nombre">Lucho</span>
+        <div class="carga-bar-wrap"><div class="carga-bar" style="width:56%; background:#D4A0C0;"></div></div>
+        <span class="carga-nums">5 tareas · 56%</span>
+        <span class="carga-badge badge-high">mayor carga</span>
+      </div>
+      <div class="carga-row">
+        <span class="carga-nombre">Gerardo</span>
+        <div class="carga-bar-wrap"><div class="carga-bar" style="width:44%; background:#D4A090;"></div></div>
+        <span class="carga-nums">4 tareas · 44%</span>
+        <span class="carga-badge badge-mid"></span>
+      </div>
+      <div class="carga-row">
+        <span class="carga-nombre">Luis</span>
+        <div class="carga-bar-wrap"><div class="carga-bar" style="width:33%; background:#B0C0DC;"></div></div>
+        <span class="carga-nums">3 tareas · 33%</span>
+        <span class="carga-badge badge-mid"></span>
+      </div>
+      <div class="carga-row">
+        <span class="carga-nombre">Fer</span>
+        <div class="carga-bar-wrap"><div class="carga-bar" style="width:33%; background:#D4B880;"></div></div>
+        <span class="carga-nums">3 tareas · 33%</span>
+        <span class="carga-badge badge-mid"></span>
+      </div>
+      <div class="carga-row">
+        <span class="carga-nombre">Leo</span>
+        <div class="carga-bar-wrap"><div class="carga-bar" style="width:22%; background:#A0CCB0;"></div></div>
+        <span class="carga-nums">2 tareas · 22%</span>
+        <span class="carga-badge badge-low">menor carga</span>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-left">Soporte Técnico · ANMAT · <span id="today-date"></span></div>
+    <button class="reset-btn" onclick="resetAll()">↺ &nbsp;Reiniciar</button>
+  </footer>
+
+</div>
+<script>
+  const done = new Set();
+  const TOTAL = 9;
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+  function toggle(id) {
+    done.has(id) ? done.delete(id) : done.add(id);
+    document.querySelector('[data-id="' + id + '"]').classList.toggle('done');
+    update();
+  }
+  function update() {
+    const d = done.size;
+    const pct = Math.round((d / TOTAL) * 100);
+    document.getElementById('done-count').textContent = d;
+    document.getElementById('pending-count').textContent = TOTAL - d;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('pct-label').textContent = pct + '%';
+    document.getElementById('header-badge').textContent = d + ' / ' + TOTAL + ' completadas';
+  }
+  function resetAll() {
+    done.clear();
+    document.querySelectorAll('.task').forEach(t => t.classList.remove('done'));
+    update();
+  }
+</script>
+</body>
+</html>
