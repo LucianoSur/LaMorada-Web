@@ -33,7 +33,7 @@ body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--t
 
 /* ── HEADER ── */
 .app-header { padding: 1.4rem 1.2rem 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
-.app-header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.app-header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
 .app-title { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
 .app-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .status-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.25); white-space: nowrap; }
@@ -93,7 +93,8 @@ body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--t
 .sec-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 14px 0 8px; }
 
 /* ── TABLA PRODUCTOS ── */
-table.items { width: 100%; border-collapse: collapse; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.items { width: 100%; min-width: 480px; border-collapse: collapse; }
 table.items th { font-size: 10px; color: var(--muted); font-weight: 700; text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
 table.items td { padding: 8px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 14px; vertical-align: middle; }
 table.items tr:last-child td { border-bottom: none; }
@@ -352,8 +353,10 @@ table.hist tr:last-child td { border-bottom: none; }
         <div class="app-subtitle">El Cachivache · Sábado 18 de abril 2026</div>
         <div class="rol-chip" id="rol-chip">—</div>
       </div>
-      <div class="status-pill" id="status-pill"><div class="status-dot"></div><span id="status-text">Conectando...</span></div>
-      <button id="btn-refresh" onclick="forzarSync()" title="Forzar actualización" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;width:30px;height:30px;font-size:15px;cursor:pointer;flex-shrink:0;">↻</button>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+        <div class="status-pill" id="status-pill"><div class="status-dot"></div><span id="status-text">Conectando...</span></div>
+        <button id="btn-refresh" onclick="forzarSync()" title="Forzar actualización" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;width:30px;height:30px;font-size:15px;cursor:pointer;flex-shrink:0;">↻</button>
+      </div>
     </div>
   </div>
 
@@ -457,10 +460,10 @@ table.hist tr:last-child td { border-bottom: none; }
       </div>
       <div class="acc-body open" id="body-barra">
         <div class="sec-label">Productos</div>
-        <table class="items">
+        <div class="table-scroll"><table class="items">
           <thead><tr><th>Producto</th><th>Precio</th><th class="c">Efectivo</th><th class="c">Débito</th><th class="r">Subtotal</th><th></th></tr></thead>
           <tbody id="rows-barra"></tbody>
-        </table>
+        </table></div>
         <div class="add-row">
           <input class="inp-name" id="nn-barra" type="text" placeholder="Producto" />
           <input class="inp-price" id="np-barra" type="number" placeholder="Precio $" min="0" step="100" />
@@ -485,10 +488,10 @@ table.hist tr:last-child td { border-bottom: none; }
       </div>
       <div class="acc-body open" id="body-buffet">
         <div class="sec-label">Productos</div>
-        <table class="items">
+        <div class="table-scroll"><table class="items">
           <thead><tr><th>Producto</th><th>Precio</th><th class="c">Efectivo</th><th class="c">Débito</th><th class="r">Subtotal</th><th></th></tr></thead>
           <tbody id="rows-buffet"></tbody>
-        </table>
+        </table></div>
         <div class="add-row">
           <input class="inp-name" id="nn-buffet" type="text" placeholder="Producto" />
           <input class="inp-price" id="np-buffet" type="number" placeholder="Precio $" min="0" step="100" />
@@ -560,7 +563,7 @@ table.hist tr:last-child td { border-bottom: none; }
         <button class="clear-btn" onclick="clearHist()">Borrar</button>
       </div>
     </div>
-    <table class="hist">
+    <div class="table-scroll"><table class="hist">
       <thead>
         <tr>
           <th>Hora</th><th></th>
@@ -574,7 +577,7 @@ table.hist tr:last-child td { border-bottom: none; }
       <tbody id="hist-body">
         <tr><td colspan="11" class="empty-hist">Todavía no hay registros</td></tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 
   <div class="app-footer">
