@@ -309,7 +309,7 @@ table.hist tr:last-child td { border-bottom: none; }
 <div class="pin-screen" id="pin-screen">
   <div class="pin-logo">🎶</div>
   <div class="pin-title">Control de Caja</div>
-  <div class="pin-sub">Milonga del Bicentenario<br>El Cachivache · 18 de abril 2026</div>
+  <div class="pin-sub">Milonga del Bicentenario<br>Caja de la organización</div>
   <div class="pin-display" id="pin-display">
     <span class="placeholder">●</span><span class="placeholder">●</span><span class="placeholder">●</span><span class="placeholder">●</span>
   </div>
@@ -350,7 +350,7 @@ table.hist tr:last-child td { border-bottom: none; }
     <div class="app-header-top">
       <div>
         <div class="app-title">Milonga del Bicentenario</div>
-        <div class="app-subtitle">El Cachivache · Sábado 18 de abril 2026</div>
+        <div class="app-subtitle" id="last-sync">Sincronizando…</div>
         <div class="rol-chip" id="rol-chip">—</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
@@ -482,7 +482,7 @@ table.hist tr:last-child td { border-bottom: none; }
     <!-- BUFFET -->
     <div class="accordion" id="acc-buffet">
       <div class="acc-header" onclick="toggleAcc('buffet')">
-        <span class="acc-title">Buffet <span class="acc-badge badge-buf">Encargada</span></span>
+        <span class="acc-title">Buffet <span class="acc-badge badge-org">Organización</span></span>
         <span class="acc-meta" id="meta-buffet"></span>
         <span class="acc-arrow open" id="arrow-buffet">▼</span>
       </div>
@@ -712,6 +712,9 @@ function aplicarDatosRemotos(val) {
 
   render(); renderHist(); renderGastos();
   remoteUpdate = false;
+
+  var hs = document.getElementById('last-sync');
+  if (hs) hs.textContent = 'Última sincronización: ' + new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
 }
 
 cajaRef.on('value', function(snap) { aplicarDatosRemotos(snap.val()); });
@@ -918,8 +921,7 @@ function render() {
 function renderConsolidado() {
   var a = calcAnt(), e = calcEntrada(), b = calcSec('barra'), f = calcSec('buffet');
   var cambio = D.cambio;
-  var orgRes = a.org + e.org + b.resultado;
-  var bufRes = f.resultado;
+  var orgRes = a.org + e.org + b.resultado + f.resultado;
   var totalCaja = e.ventas + b.ventas + f.ventas + cambio;
 
   document.getElementById('consolidado-box').innerHTML =
@@ -932,20 +934,17 @@ function renderConsolidado() {
     '<div class="cons-row"><span class="lbl">↳ 70% músicos</span><span class="amt" style="color:var(--muted)">−'+fmt(a.musicos)+'</span></div>' +
     '<div class="cons-row"><span class="lbl">↳ 30% organización</span><span class="amt" style="color:var(--orange)">'+fmt(a.org)+'</span></div>' +
     '</div></div>' +
-    '<div class="cons-section"><div class="cons-title org">Organización — Puerta + Barra</div>' +
+    '<div class="cons-section"><div class="cons-title org">Organización — Puerta + Barra + Buffet</div>' +
     '<div class="cons-rows">' +
     '<div class="cons-row"><span class="lbl">Entrada puerta</span><span class="amt">'+fmt(e.ventas)+'</span></div>' +
     '<div class="cons-row"><span class="lbl">↳ 30% org</span><span class="amt" style="color:var(--orange)">'+fmt(e.org)+'</span></div>' +
     '<div class="cons-row"><span class="lbl">Barra ef</span><span class="amt" style="color:var(--blue)">'+fmt(b.ef)+'</span></div>' +
     '<div class="cons-row"><span class="lbl">Barra déb</span><span class="amt" style="color:var(--purple)">'+fmt(b.db)+'</span></div>' +
     '<div class="cons-row"><span class="lbl">Inversión barra</span><span class="amt" style="color:var(--red)">−'+fmt(b.inv)+'</span></div>' +
+    '<div class="cons-row"><span class="lbl">Buffet ef</span><span class="amt" style="color:var(--blue)">'+fmt(f.ef)+'</span></div>' +
+    '<div class="cons-row"><span class="lbl">Buffet déb</span><span class="amt" style="color:var(--purple)">'+fmt(f.db)+'</span></div>' +
+    '<div class="cons-row"><span class="lbl">Inversión buffet</span><span class="amt" style="color:var(--red)">−'+fmt(f.inv)+'</span></div>' +
     '</div><div class="cons-total"><span>Resultado organización</span><span class="amt" style="color:'+(orgRes>=0?'var(--green)':'var(--red)')+'">'+fmt(orgRes)+'</span></div></div>' +
-    '<div class="cons-section"><div class="cons-title buf">Buffet — Encargada</div>' +
-    '<div class="cons-rows">' +
-    '<div class="cons-row"><span class="lbl">Vendido ef</span><span class="amt" style="color:var(--blue)">'+fmt(f.ef)+'</span></div>' +
-    '<div class="cons-row"><span class="lbl">Vendido déb</span><span class="amt" style="color:var(--purple)">'+fmt(f.db)+'</span></div>' +
-    '<div class="cons-row"><span class="lbl">Inversión</span><span class="amt" style="color:var(--red)">−'+fmt(f.inv)+'</span></div>' +
-    '</div><div class="cons-total"><span>Resultado buffet</span><span class="amt" style="color:'+(bufRes>=0?'var(--green)':'var(--red)')+'">'+fmt(bufRes)+'</span></div></div>' +
     '<div class="cons-section"><div class="cons-rows">' +
     '<div class="cons-row"><span class="lbl">Caja de cambio</span><span class="amt">'+fmt(cambio)+'</span></div>' +
     '<div class="cons-row"><span class="lbl">Recaudado en el evento</span><span class="amt">'+fmt(e.ventas+b.ventas+f.ventas)+'</span></div>' +
@@ -955,7 +954,7 @@ function renderConsolidado() {
 function generarCierre() {
   var a = calcAnt(), e = calcEntrada(), b = calcSec('barra'), f = calcSec('buffet');
   var cambio = D.cambio, precioEnt = D.entrada.precio;
-  var orgRes = a.org + e.org + b.resultado, bufRes = f.resultado;
+  var orgRes = a.org + e.org + b.resultado + f.resultado;
   var totalCaja = e.ventas + b.ventas + f.ventas + cambio;
   var ahora = new Date().toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'});
 
@@ -980,14 +979,14 @@ function generarCierre() {
     '<div class="cierre-line"><span class="lbl">Inversión</span><span class="amt red">−'+fmt(b.inv)+'</span></div>' +
     '<div class="cierre-line"><span class="lbl">Resultado</span><span class="amt '+(b.resultado>=0?'green':'red')+'">'+fmt(b.resultado)+'</span></div>' +
     '</div>' +
-    '<div class="cierre-section"><div class="cierre-section-title">Buffet (encargada)</div>' +
+    '<div class="cierre-section"><div class="cierre-section-title">Buffet (organización)</div>' +
     '<div class="cierre-line"><span class="lbl">Efectivo</span><span class="amt blue">'+fmt(f.ef)+'</span></div>' +
     '<div class="cierre-line"><span class="lbl">Débito</span><span class="amt purple">'+fmt(f.db)+'</span></div>' +
     '<div class="cierre-line"><span class="lbl">Inversión</span><span class="amt red">−'+fmt(f.inv)+'</span></div>' +
-    '<div class="cierre-line"><span class="lbl">Resultado</span><span class="amt '+(bufRes>=0?'green':'red')+'">'+fmt(bufRes)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">Resultado</span><span class="amt '+(f.resultado>=0?'green':'red')+'">'+fmt(f.resultado)+'</span></div>' +
     '</div>' +
     '<div class="cierre-section"><div class="cierre-section-title">Resultado organización total</div>' +
-    '<div class="cierre-line"><span class="lbl">Ant. 30% + puerta 30% + barra</span><span class="amt '+(orgRes>=0?'green':'red')+'">'+fmt(orgRes)+'</span></div>' +
+    '<div class="cierre-line"><span class="lbl">Ant. 30% + puerta 30% + barra + buffet</span><span class="amt '+(orgRes>=0?'green':'red')+'">'+fmt(orgRes)+'</span></div>' +
     '</div>' +
     (D.gastos.length ? (function(){
       var totalGastos = D.gastos.reduce(function(s,g){return s+g.monto;},0);
@@ -1012,7 +1011,7 @@ function generarCierre() {
     'Compartir por WhatsApp</button></div>';
 
   window._cierreTexto = [
-    '🎶 *CIERRE DE CAJA*','Milonga del Bicentenario · El Cachivache','18 de abril 2026 · '+ahora,'',
+    '🎶 *CIERRE DE CAJA*','Milonga del Bicentenario',ahora,'',
     '🎫 *ANTICIPADAS*',
     '  Sin mesa: '+a.sinMesa+' · Con mesa: '+a.conMesa,
     '  Total cobrado: '+fmt(a.monto),
@@ -1026,7 +1025,7 @@ function generarCierre() {
     '  Inversión: −'+fmt(b.inv)+'  Resultado: '+fmt(b.resultado),'',
     '☕ *BUFFET*',
     '  Efectivo: '+fmt(f.ef)+'  Débito: '+fmt(f.db),
-    '  Inversión: −'+fmt(f.inv)+'  Resultado: '+fmt(bufRes),'',
+    '  Inversión: −'+fmt(f.inv)+'  Resultado: '+fmt(f.resultado),'',
     '📊 *RESULTADO ORGANIZACIÓN: '+fmt(orgRes)+'*','',
     (function(){
       if (!D.gastos.length) return '';
