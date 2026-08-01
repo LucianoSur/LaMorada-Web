@@ -661,18 +661,37 @@ var D = {
   anticipadas: { sinMesa: 0, conMesa: 0 },
   entrada: { ef: 0, db: 0, precio: 3000 },
   barra:   { items: [
-    {name:'Cerveza',price:1500,ef:0,db:0},{name:'Vino copa',price:1200,ef:0,db:0},
-    {name:'Fernet',price:2000,ef:0,db:0},{name:'Agua',price:800,ef:0,db:0},{name:'Gaseosa',price:800,ef:0,db:0}
+    {id:'d1',name:'Cerveza',price:1500,ef:0,db:0,createdAt:1},{id:'d2',name:'Vino copa',price:1200,ef:0,db:0,createdAt:2},
+    {id:'d3',name:'Fernet',price:2000,ef:0,db:0,createdAt:3},{id:'d4',name:'Agua',price:800,ef:0,db:0,createdAt:4},{id:'d5',name:'Gaseosa',price:800,ef:0,db:0,createdAt:5}
   ], inv:0 },
   buffet:  { items: [
-    {name:'Sándwich',price:2500,ef:0,db:0},{name:'Empanada',price:1200,ef:0,db:0},
-    {name:'Tarta porción',price:2000,ef:0,db:0},{name:'Café',price:1000,ef:0,db:0}
+    {id:'d1',name:'Sándwich',price:2500,ef:0,db:0,createdAt:1},{id:'d2',name:'Empanada',price:1200,ef:0,db:0,createdAt:2},
+    {id:'d3',name:'Tarta porción',price:2000,ef:0,db:0,createdAt:3},{id:'d4',name:'Café',price:1000,ef:0,db:0,createdAt:4}
   ], inv:0 },
   cambio: 0, snaps: [], gastos: []
 };
 
 var secsLeft = 1800;
 var remoteUpdate = false;
+
+// Genera un id único (para nuevos ítems, gastos y registros del historial)
+function nuevoId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+// Convierte un mapa de Firebase { id: {...} } en un array local ordenado.
+// Si val es un string (formato viejo, JSON de un array completo), lo parsea
+// y le asigna ids/orden para dejarlo compatible con el formato nuevo.
+function mapaAArray(val) {
+  if (!val) return [];
+  if (typeof val === 'string') {
+    var arr;
+    try { arr = JSON.parse(val); } catch(e) { arr = []; }
+    arr.forEach(function(it, idx){ if(!it.id) it.id = 'legacy'+idx; if(it.createdAt===undefined) it.createdAt = idx; });
+    return arr;
+  }
+  return Object.keys(val).map(function(k){
+    var o = val[k]; if (!o.id) o.id = k; return o;
+  }).sort(function(a,b){ return (a.createdAt||0)-(b.createdAt||0); });
+}
 
 db.ref('.info/connected').on('value', function(snap) {
   var on = snap.val();
@@ -693,13 +712,13 @@ function aplicarDatosRemotos(val) {
   D.entrada.ef     = val.entrada_ef     || 0;
   D.entrada.db     = val.entrada_db     || 0;
   D.entrada.precio = val.entrada_precio || 3000;
-  if (val.barra_items) D.barra.items = JSON.parse(val.barra_items);
+  if (val.barra_items) D.barra.items = mapaAArray(val.barra_items);
   D.barra.inv = val.barra_inv || 0;
-  if (val.buffet_items) D.buffet.items = JSON.parse(val.buffet_items);
+  if (val.buffet_items) D.buffet.items = mapaAArray(val.buffet_items);
   D.buffet.inv = val.buffet_inv || 0;
   D.cambio = val.cambio || 0;
-  if (val.snaps) D.snaps = JSON.parse(val.snaps);
-  if (val.gastos) D.gastos = JSON.parse(val.gastos);
+  D.snaps  = mapaAArray(val.snaps).sort(function(a,b){ return (a.createdAt||0)-(b.createdAt||0); });
+  D.gastos = mapaAArray(val.gastos);
 
   document.getElementById('precio-entrada').value = D.entrada.precio;
   document.getElementById('ent-ef').textContent = D.entrada.ef;
@@ -735,34 +754,100 @@ document.addEventListener('visibilitychange', function() {
 window.addEventListener('focus', forzarSync);
 window.addEventListener('pageshow', forzarSync);
 
-function pushToFirebase() {
+// Convierte un array local de items/gastos/snaps en un mapa { id: {...} }
+// para guardarlo en Firebase (cada elemento en su propia clave).
+function arrayAMapa(arr) {
+  var out = {};
+  arr.forEach(function(it){ out[it.id] = it; });
+  return out;
+}
+
+// Arma sólo las claves de Firebase correspondientes a las secciones indicadas.
+// Esto evita el problema de pisar con datos viejos las secciones que NO
+// cambiaron (p.ej. que un dispositivo de barra sobreescriba lo de buffet
+// por tener una copia local desactualizada de esa sección). Se usa nada
+// más que para el "reset" completo de una sección o para inicializar la
+// base vacía — las operaciones normales (contadores, altas, bajas) usan
+// pushDelta()/pushCampo() para tocar sólo la clave puntual que cambió.
+function buildFirebasePayload(sections) {
+  var out = {};
+  sections.forEach(function(s) {
+    if (s === 'anticipadas') {
+      out.ant_sinMesa = D.anticipadas.sinMesa;
+      out.ant_conMesa = D.anticipadas.conMesa;
+    } else if (s === 'entrada') {
+      out.entrada_ef     = D.entrada.ef;
+      out.entrada_db     = D.entrada.db;
+      out.entrada_precio = D.entrada.precio;
+    } else if (s === 'barra') {
+      out.barra_items = arrayAMapa(D.barra.items);
+      out.barra_inv   = D.barra.inv;
+    } else if (s === 'buffet') {
+      out.buffet_items = arrayAMapa(D.buffet.items);
+      out.buffet_inv   = D.buffet.inv;
+    } else if (s === 'cambio') {
+      out.cambio = D.cambio;
+    } else if (s === 'snaps') {
+      out.snaps = arrayAMapa(D.snaps);
+    } else if (s === 'gastos') {
+      out.gastos = arrayAMapa(D.gastos);
+    }
+  });
+  return out;
+}
+
+function mostrarErrorGuardado(err) {
+  console.error('Error al guardar en Firebase:', err);
+  document.getElementById('sync-bar').className = 'sync-bar offline';
+  var pill = document.getElementById('status-pill');
+  var txt  = document.getElementById('status-text');
+  pill.className = 'status-pill offline';
+  txt.textContent = 'Error al guardar: ' + err.code;
+  alert('No se pudo guardar el cambio en la base de datos.\n\nMotivo: ' + err.code + ' — ' + err.message + '\n\nEste cambio quedó solo en tu pantalla y NO se sincronizó con los demás dispositivos. Avisá al administrador para revisar las reglas de Firebase.');
+}
+
+// sections: array de partes de D que cambiaron, ej. ['barra'], ['entrada'].
+// Si se omite, se manda todo (se usa sólo para inicializar la base vacía
+// o para "reiniciar" una sección entera a propósito).
+// IMPORTANTE: usamos update() (multi-path) en vez de set() para no pisar
+// secciones de otros roles/dispositivos que este cliente pueda tener
+// desactualizadas.
+function pushToFirebase(sections) {
+  if (remoteUpdate) return;
+  if (!sections || !sections.length) {
+    sections = ['anticipadas','entrada','barra','buffet','cambio','snaps','gastos'];
+  }
+  var payload = buildFirebasePayload(sections);
+  var bar = document.getElementById('sync-bar');
+  bar.className = 'sync-bar saving';
+  cajaRef.update(payload).then(function(){
+    document.getElementById('sync-bar').className = 'sync-bar';
+  }).catch(mostrarErrorGuardado);
+}
+
+// Incremento atómico de un campo puntual (contadores +/-). Varios
+// dispositivos pueden mandar increments al mismo tiempo sobre el mismo
+// campo y Firebase los suma todos server-side, sin pisarse entre sí.
+function pushDelta(path, delta) {
   if (remoteUpdate) return;
   var bar = document.getElementById('sync-bar');
   bar.className = 'sync-bar saving';
-  cajaRef.set({
-    ant_sinMesa:    D.anticipadas.sinMesa,
-    ant_conMesa:    D.anticipadas.conMesa,
-    entrada_ef:     D.entrada.ef,
-    entrada_db:     D.entrada.db,
-    entrada_precio: D.entrada.precio,
-    barra_items:    JSON.stringify(D.barra.items),
-    barra_inv:      D.barra.inv,
-    buffet_items:   JSON.stringify(D.buffet.items),
-    buffet_inv:     D.buffet.inv,
-    cambio:         D.cambio,
-    snaps:          JSON.stringify(D.snaps),
-    gastos:         JSON.stringify(D.gastos)
-  }).then(function(){
+  var upd = {};
+  upd[path] = firebase.database.ServerValue.increment(delta);
+  cajaRef.update(upd).then(function(){
     document.getElementById('sync-bar').className = 'sync-bar';
-  }).catch(function(err){
-    console.error('Error al guardar en Firebase:', err);
-    document.getElementById('sync-bar').className = 'sync-bar offline';
-    var pill = document.getElementById('status-pill');
-    var txt  = document.getElementById('status-text');
-    pill.className = 'status-pill offline';
-    txt.textContent = 'Error al guardar: ' + err.code;
-    alert('No se pudo guardar el cambio en la base de datos.\n\nMotivo: ' + err.code + ' — ' + err.message + '\n\nEste cambio quedó solo en tu pantalla y NO se sincronizó con los demás dispositivos. Avisá al administrador para revisar las reglas de Firebase.');
-  });
+  }).catch(mostrarErrorGuardado);
+}
+
+// Escritura absoluta de una o más claves puntuales (para altas/bajas de
+// ítems o gastos, y edición de campos como precio/inversión/cambio).
+function pushCampo(obj) {
+  if (remoteUpdate) return;
+  var bar = document.getElementById('sync-bar');
+  bar.className = 'sync-bar saving';
+  cajaRef.update(obj).then(function(){
+    document.getElementById('sync-bar').className = 'sync-bar';
+  }).catch(mostrarErrorGuardado);
 }
 
 // ── UI ──
@@ -781,16 +866,18 @@ function toggleAcc(id) {
 
 // ── ANTICIPADAS ──
 function chgAnt(type, delta) {
-  D.anticipadas[type] = Math.max(0, D.anticipadas[type] + delta);
+  var next = D.anticipadas[type] + delta;
+  if (next < 0) return;
+  D.anticipadas[type] = next;
   document.getElementById('ant-' + type).textContent = D.anticipadas[type];
-  render(); pushToFirebase();
+  render(); pushDelta(type==='sinMesa'?'ant_sinMesa':'ant_conMesa', delta);
 }
 function resetAnt() {
   if (!confirm('Reiniciar anticipadas?')) return;
   D.anticipadas.sinMesa = 0; D.anticipadas.conMesa = 0;
   document.getElementById('ant-sinMesa').textContent = '0';
   document.getElementById('ant-conMesa').textContent = '0';
-  render(); pushToFirebase();
+  render(); pushToFirebase(['anticipadas']);
 }
 function calcAnt() {
   var precio = parseFloat(document.getElementById('precio-entrada').value) || 0;
@@ -802,16 +889,18 @@ function calcAnt() {
 
 // ── ENTRADA PUERTA ──
 function chgEntrada(type, delta) {
-  D.entrada[type] = Math.max(0, D.entrada[type] + delta);
+  var next = D.entrada[type] + delta;
+  if (next < 0) return;
+  D.entrada[type] = next;
   document.getElementById('ent-' + type).textContent = D.entrada[type];
-  render(); pushToFirebase();
+  render(); pushDelta(type==='ef'?'entrada_ef':'entrada_db', delta);
 }
 function resetEntrada() {
   if (!confirm('Reiniciar entrada en puerta?')) return;
   D.entrada.ef = 0; D.entrada.db = 0;
   document.getElementById('ent-ef').textContent = '0';
   document.getElementById('ent-db').textContent = '0';
-  render(); pushToFirebase();
+  render(); pushToFirebase(['entrada']);
 }
 function calcEntrada() {
   var precio = parseFloat(document.getElementById('precio-entrada').value) || 0;
@@ -824,29 +913,58 @@ function calcEntrada() {
 
 // ── SECTORES ──
 function chg(sec, i, type, delta) {
-  D[sec].items[i][type] = Math.max(0, D[sec].items[i][type] + delta);
-  render(); pushToFirebase();
+  var it = D[sec].items[i];
+  var next = it[type] + delta;
+  if (next < 0) return;
+  it[type] = next;
+  render();
+  pushDelta(sec+'_items/'+it.id+'/'+type, delta);
 }
 function addItem(sec) {
   var name = document.getElementById('nn-'+sec).value.trim();
   var price = parseFloat(document.getElementById('np-'+sec).value) || 0;
   if (!name) return;
-  D[sec].items.push({name:name,price:price,ef:0,db:0});
+  var it = {id:nuevoId(), name:name, price:price, ef:0, db:0, createdAt:Date.now()};
+  D[sec].items.push(it);
   document.getElementById('nn-'+sec).value = '';
   document.getElementById('np-'+sec).value = '';
-  render(); pushToFirebase();
+  render();
+  var upd = {}; upd[sec+'_items/'+it.id] = it;
+  pushCampo(upd);
 }
 function delItem(sec, i) {
-  if (!confirm('Eliminar "'+D[sec].items[i].name+'"?')) return;
-  D[sec].items.splice(i,1); render(); pushToFirebase();
+  var it = D[sec].items[i];
+  if (!confirm('Eliminar "'+it.name+'"?')) return;
+  D[sec].items.splice(i,1); render();
+  var upd = {}; upd[sec+'_items/'+it.id] = null;
+  pushCampo(upd);
 }
 function resetSec(sec) {
   if (!confirm('Reiniciar '+(sec==='barra'?'la barra':'el buffet')+'?')) return;
-  D[sec].items.forEach(function(it){ it.ef=0; it.db=0; }); render(); pushToFirebase();
+  var upd = {};
+  D[sec].items.forEach(function(it){
+    it.ef=0; it.db=0;
+    upd[sec+'_items/'+it.id+'/ef'] = 0;
+    upd[sec+'_items/'+it.id+'/db'] = 0;
+  });
+  render(); pushCampo(upd);
 }
-function onInvChange(sec) { D[sec].inv = parseFloat(document.getElementById('inv-'+sec).value)||0; render(); pushToFirebase(); }
-function onCambioChange() { D.cambio = parseFloat(document.getElementById('cambio').value)||0; render(); pushToFirebase(); }
-function onPrecioEntradaChange() { D.entrada.precio = parseFloat(document.getElementById('precio-entrada').value)||0; render(); pushToFirebase(); }
+function onInvChange(sec) {
+  D[sec].inv = parseFloat(document.getElementById('inv-'+sec).value)||0;
+  render();
+  var upd = {}; upd[sec+'_inv'] = D[sec].inv;
+  pushCampo(upd);
+}
+function onCambioChange() {
+  D.cambio = parseFloat(document.getElementById('cambio').value)||0;
+  render();
+  pushCampo({cambio: D.cambio});
+}
+function onPrecioEntradaChange() {
+  D.entrada.precio = parseFloat(document.getElementById('precio-entrada').value)||0;
+  render();
+  pushCampo({entrada_precio: D.entrada.precio});
+}
 
 function fmt(n) { return '$' + Math.round(n).toLocaleString('es-AR'); }
 
@@ -1051,13 +1169,15 @@ function enviarWhatsApp() {
 function takeSnap(type) {
   var a = calcAnt(), e = calcEntrada(), b = calcSec('barra'), f = calcSec('buffet');
   var hora = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-  D.snaps.push({ hora:hora, type:type,
+  var snap = { id:nuevoId(), hora:hora, type:type, createdAt:Date.now(),
     ant:a.total, eEf:e.ef, eDb:e.db, bEf:b.ef, bDb:b.db, fEf:f.ef, fDb:f.db,
     total: e.ventas+b.ventas+f.ventas+D.cambio,
     res: a.org+e.org+b.resultado+f.resultado
-  });
+  };
+  D.snaps.push(snap);
   if (type==='manual') secsLeft=1800;
-  pushToFirebase(); renderHist();
+  var upd = {}; upd['snaps/'+snap.id] = snap;
+  pushCampo(upd); renderHist();
 }
 
 function renderHist() {
@@ -1080,7 +1200,7 @@ function renderHist() {
 
 function clearHist() {
   if (!confirm('Borrar todo el historial?')) return;
-  D.snaps = []; pushToFirebase(); renderHist();
+  D.snaps = []; pushCampo({snaps:null}); renderHist();
 }
 
 // ── GASTOS ──
@@ -1090,16 +1210,21 @@ function agregarGasto() {
   var cat   = document.getElementById('gasto-cat').value;
   if (!desc || monto <= 0) { alert('Completá la descripción y el monto'); return; }
   var hora = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-  D.gastos.push({ id: Date.now(), desc: desc, monto: monto, cat: cat, hora: hora });
+  var gasto = { id: nuevoId(), desc: desc, monto: monto, cat: cat, hora: hora, createdAt: Date.now() };
+  D.gastos.push(gasto);
   document.getElementById('gasto-desc').value = '';
   document.getElementById('gasto-monto').value = '';
-  renderGastos(); pushToFirebase();
+  renderGastos();
+  var upd = {}; upd['gastos/'+gasto.id] = gasto;
+  pushCampo(upd);
 }
 
 function eliminarGasto(id) {
   if (!confirm('Eliminar este gasto?')) return;
   D.gastos = D.gastos.filter(function(g){ return g.id !== id; });
-  renderGastos(); pushToFirebase();
+  renderGastos();
+  var upd = {}; upd['gastos/'+id] = null;
+  pushCampo(upd);
 }
 
 function renderGastos() {
@@ -1132,7 +1257,7 @@ function renderGastos() {
         '<div class="gasto-meta"><span class="gasto-cat-pill">'+g.cat+'</span><span>'+g.hora+'</span></div>' +
       '</div>' +
       '<div class="gasto-monto">−'+fmt(g.monto)+'</div>' +
-      '<button class="gasto-del" onclick="eliminarGasto('+g.id+')">✕</button>';
+      '<button class="gasto-del" onclick="eliminarGasto(\''+g.id+'\')">✕</button>';
     list.appendChild(div);
   });
 }
